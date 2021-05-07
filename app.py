@@ -4,6 +4,7 @@ from flask_login import current_user, LoginManager
 from flask_bootstrap import Bootstrap
 import frontend_forms
 from UserClient import UserClient
+from flask_jwt_extended import JWTManager
 
 
 app = Flask(__name__)
@@ -13,6 +14,7 @@ login_manager.init_app(app)
 login_manager.login_view = 'main.login'
 
 bootstrap = Bootstrap(app)
+jwt = JWTManager(app)
 
 app.config.update(dict(
 	SECRET_KEY="powerful secretkey",
@@ -20,13 +22,32 @@ app.config.update(dict(
 	))
 
 
-# @app.route('/register', methods=['GET', 'POST'])
-# def register():
-# 	form = frontend_forms.RegisterForm(request.form)
-# 	if request.method == "POST":
-# 		if form.validate_on_submit():
-# 			username = form.username.data
-# 			user = UserClient.does_exist(username)
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+	form = frontend_forms.RegisterForm(request.form)
+	if request.method == "POST":
+		username = form.username.data
+		user = UserClient.does_exist(username)
+		if user:
+			flash('Please try another username', 'error')
+			return ' user exist ! register page, form=form'
+		else:
+			user = UserClient.post_user_create(form)
+			if user:
+				flash('Thanks for registering, please login to continue', 'success')
+				return 'redirect, url for, frontend.login'
+	else:
+		flash('Errors found', 'error')
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+	form  = frontend_forms.LoginForm()
+	if request.method == "POST":
+		access_token = UserClient.post_login(form)
+
+
+
 
 @app.route('/check/<string:username>',methods=['GET'])
 def check(username):
