@@ -45,6 +45,8 @@ def login():
 	form  = frontend_forms.LoginForm()
 	if request.method == "POST":
 		access_token = UserClient.post_login(form)
+		print(access_token)
+		return "done"
 
 
 
