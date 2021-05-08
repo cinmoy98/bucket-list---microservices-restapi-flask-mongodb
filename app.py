@@ -4,7 +4,7 @@ from flask_login import current_user, LoginManager
 from flask_bootstrap import Bootstrap
 import frontend_forms
 from UserClient import UserClient
-from flask_jwt_extended import JWTManager
+from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity ,get_jwt
 
 
 app = Flask(__name__)
@@ -46,6 +46,7 @@ def login():
 	if request.method == "POST":
 		access_token = UserClient.post_login(form)
 		print(access_token)
+		username = get_jwt_identity(access_token['access_token'])
 		return "done"
 
 

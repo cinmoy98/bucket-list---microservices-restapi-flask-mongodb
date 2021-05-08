@@ -3,7 +3,8 @@ from passlib.hash import sha256_crypt
 from UserModel import User, Auth
 import datetime
 from flask_pymongo import PyMongo
-from flask_jwt_extended import (create_access_token, create_refresh_token, jwt_required, get_jwt_identity, get_jwt)
+from flask_jwt_extended import (create_access_token, create_refresh_token, jwt_required, get_jwt_identity, get_jwt, 
+	set_access_cookies, unset_jwt_cookies)
 from flask_jwt_extended import JWTManager
 from bson import ObjectId
 
@@ -12,8 +13,11 @@ app = Flask(__name__)
 app.config["MONGO_URI"] = "mongodb://localhost:27017/bucket_list"
 app.config['SECRET_KEY'] = "Thisisreallysecret"
 app.config['JWT_SECRET_KEY'] = "DoNotExpose"
-app.config['JWT_BLACKLIST_ENABLED'] = True
-app.config['JWT_BLACKLIST_TOKEN_CHECKS'] = ['access', 'refresh']
+app.config['JWT_COOKIE_SECURE'] = False
+app.config['JWT_TOKEN_LOCATION'] = ["cookies"]
+
+#app.config['JWT_BLACKLIST_ENABLED'] = True
+#app.config['JWT_BLACKLIST_TOKEN_CHECKS'] = ['access', 'refresh']
 mongo = PyMongo(app)
 jwt = JWTManager(app)
 
@@ -57,31 +61,44 @@ def post_login():
 			expires = datetime.timedelta(minutes=10)
 			access_token = create_access_token(identity = username , fresh = True, expires_delta=expires)
 			refresh_token = create_refresh_token(identity = username)
-			tokens = {
-			'message': 'User was created',
-			'access_token': access_token,
-			'refresh_token': refresh_token
-			}
-			return jsonify(tokens)
+			# tokens = {
+			# 'message': 'User was created',
+			# 'access_token': access_token,
+			# 'refresh_token': refresh_token
+			# }
+			#return jsonify(tokens)
+			response = jsonify({'message': 'success'})
+			set_access_cookies(response, access_token)
+			return response
 		else:
 			return make_response(jsonify({'message': 'Wrong Password !'}))
 	return make_response(jsonify({'message': 'User Not Found'})), 401
 
 
-# @jwt.user_in_blocklist_loader
-# def check_if_token_in_blacklist(decrypted_token):
-# 	jti = decrypted_token('jti')
-# 	return Auth.is_jti_blacklisted(jti)
+@jwt.token_in_blocklist_loader
+def check_if_token_revoked(jwt_header, jwt_payload):
+	jti = jwt_payload["jti"]
+	is_found = mongo.db.revoked_tokens.find_one({'jti':jti})
+	return is_found is not None
 
 @app.route('/api/user/logout',methods=['POST'])
-@jwt_required
+@jwt_required()
 def logout():
 	jti = get_jwt()['jti']
 	try:
 		revoked_token = Auth.add_revoked_token(jti, mongo)
-		return {'message': 'Access token reviked'}
+		res = {'message': 'Access token revoked'}
+		unset_jwt_cookies(res)
+		return res
 	except:
 		return {'message': 'Something went wrong'}, 500
+
+
+
+@app.route('/protected',methods=['GET'])
+@jwt_required()
+def protected():
+	return "protected"
 
 
 @app.route('/test',methods=['GET'])

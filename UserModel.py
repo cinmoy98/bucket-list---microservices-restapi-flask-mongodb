@@ -46,8 +46,8 @@ class Auth:
 	def add_revoked_token(jti, mongo):
 		mongo.db.revoked_tokens.insert({'jti' : jti})
 
-	@staticmethod
-	def is_jti_blacklisted(jti, mongo):
-		is_found = mongo.db.revoked_tokens.find({'jti':jti})
-		return bool(is_found)
+	# @staticmethod
+	# def is_jti_blacklisted(jti, mongo):
+	# 	is_found = mongo.db.revoked_tokens.find({'jti':jti})
+	# 	return bool(is_found)
 
