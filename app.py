@@ -45,20 +45,17 @@ def login():
 	form  = frontend_forms.LoginForm()
 	if request.method == "POST":
 		access_token = UserClient.post_login(form)
-		print(access_token)
-		username = get_jwt_identity(access_token['access_token'])
+		# print(access_token)
+		# username = get_jwt_identity(access_token['access_token'])
 		return "done"
 
 
 
-
-@app.route('/check/<string:username>',methods=['GET'])
-def check(username):
-	user = UserClient.does_exist(username)
-	if user:
-		return "found"
-	else:
-		return "Not found"
+@app.route('/check',methods=['GET'])
+def check():
+	response = UserClient.check()
+	print (response)
+	return response
 
 
 if __name__ == '__main__':

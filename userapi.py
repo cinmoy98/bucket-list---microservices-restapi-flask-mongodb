@@ -15,6 +15,7 @@ app.config['SECRET_KEY'] = "Thisisreallysecret"
 app.config['JWT_SECRET_KEY'] = "DoNotExpose"
 app.config['JWT_COOKIE_SECURE'] = False
 app.config['JWT_TOKEN_LOCATION'] = ["cookies"]
+app.config['JWT_COOKIE_CSRF_PROTECT'] = False
 
 #app.config['JWT_BLACKLIST_ENABLED'] = True
 #app.config['JWT_BLACKLIST_TOKEN_CHECKS'] = ['access', 'refresh']
@@ -53,14 +54,20 @@ def post_register():
 
 @app.route('/api/user/login', methods=["POST"])
 def post_login():
+	# if 'x-access-token' in request.cookies:
+ #        token = request.cookies['x-access-token']
+ #        try:
+ #            data = jwt.decode(token, app.config['SECRET_KEY'])
+ #            return jsonify({'message': 'User is already logged in cant perform another login'}), 200
 	giver_password = None
 	username = request.form['username']
 	user = mongo.db.user.find_one({'username' : username})
 	if user:
 		if sha256_crypt.verify(str(request.form['password']), user['password']):
-			expires = datetime.timedelta(minutes=10)
+			expires = datetime.timedelta(minutes=1)
 			access_token = create_access_token(identity = username , fresh = True, expires_delta=expires)
 			refresh_token = create_refresh_token(identity = username)
+			print(access_token)
 			# tokens = {
 			# 'message': 'User was created',
 			# 'access_token': access_token,
@@ -75,11 +82,17 @@ def post_login():
 	return make_response(jsonify({'message': 'User Not Found'})), 401
 
 
+
+
 @jwt.token_in_blocklist_loader
 def check_if_token_revoked(jwt_header, jwt_payload):
 	jti = jwt_payload["jti"]
 	is_found = mongo.db.revoked_tokens.find_one({'jti':jti})
 	return is_found is not None
+
+
+
+
 
 @app.route('/api/user/logout',methods=['POST'])
 @jwt_required()
@@ -87,18 +100,25 @@ def logout():
 	jti = get_jwt()['jti']
 	try:
 		revoked_token = Auth.add_revoked_token(jti, mongo)
-		res = {'message': 'Access token revoked'}
-		unset_jwt_cookies(res)
-		return res
+		response = jsonify({"msg": "logout successful"})
+		unset_jwt_cookies(response)
+		return response
 	except:
 		return {'message': 'Something went wrong'}, 500
+
+
+
 
 
 
 @app.route('/protected',methods=['GET'])
 @jwt_required()
 def protected():
-	return "protected"
+	print("Protected")
+	return jsonify("protected")
+
+
+
 
 
 @app.route('/test',methods=['GET'])
@@ -106,6 +126,9 @@ def test():
 	user = mongo.db.user.find_one({'username' : 'cinmoy98'})
 	print(user['password'])
 	return "done"
+
+
+
 
 if __name__ == '__main__':
 	app.run(debug=True)
