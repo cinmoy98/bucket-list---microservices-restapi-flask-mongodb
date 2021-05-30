@@ -57,6 +57,11 @@ def check():
 	print (response)
 	return response
 
+@app.route('/logout', methods=['POST'])
+def logout():
+	response = UserClient.logout()
+	return response
+
 
 if __name__ == '__main__':
 	app.run(host = '127.0.0.2', port=5000, debug=True)

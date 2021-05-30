@@ -62,3 +62,10 @@ class UserClient:
 		if response:
 			return response.json()
 
+	@staticmethod
+	def logout():
+		url = "http://127.0.0.1:5000/api/user/logout"
+		response = requests.request("POST", url = url, cookies = UserClient.cookies)
+		if response:
+			return response.json()
+

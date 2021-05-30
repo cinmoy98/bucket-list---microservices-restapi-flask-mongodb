@@ -109,12 +109,18 @@ def logout():
 
 
 
+@app.route('/api/user/refresh', methods=['GET'])
+@jwt_required(refresh=True)
+def refresh():
+	expires = datetime.timedelta(minutes=1)
+	new_token = create_access_token(identity=get_jwt_identity(), fresh = False, expires_delta=expires)
+	return jsonify(new_token)
+
 
 
 @app.route('/protected',methods=['GET'])
 @jwt_required()
 def protected():
-	print("Protected")
 	return jsonify("protected")
 
 
