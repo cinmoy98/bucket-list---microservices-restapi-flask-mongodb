@@ -18,6 +18,7 @@ jwt = JWTManager(app)
 
 app.config.update(dict(
 	SECRET_KEY="powerful secretkey",
+	JWT_SECRET_KEY = "DoNotExpose",
 	WTF_CSRF_SECRET_KEY="a csrf secret key",
 	))
 
@@ -44,17 +45,17 @@ def register():
 def login():
 	form  = frontend_forms.LoginForm()
 	if request.method == "POST":
-		access_token = UserClient.post_login(form)
+		msg = UserClient.post_login(form)
 		# print(access_token)
 		# username = get_jwt_identity(access_token['access_token'])
-		return "done"
+		return msg
 
 
 
 @app.route('/check',methods=['GET'])
 def check():
 	response = UserClient.check()
-	print (response)
+	#print (response)
 	return response
 
 @app.route('/logout', methods=['POST'])

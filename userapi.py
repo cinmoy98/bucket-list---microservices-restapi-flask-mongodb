@@ -13,8 +13,8 @@ app = Flask(__name__)
 app.config["MONGO_URI"] = "mongodb://localhost:27017/bucket_list"
 app.config['SECRET_KEY'] = "Thisisreallysecret"
 app.config['JWT_SECRET_KEY'] = "DoNotExpose"
-app.config['JWT_COOKIE_SECURE'] = False
-app.config['JWT_TOKEN_LOCATION'] = ["cookies"]
+#app.config['JWT_COOKIE_SECURE'] = False
+#app.config['JWT_TOKEN_LOCATION'] = ["cookies"]
 app.config['JWT_COOKIE_CSRF_PROTECT'] = False
 
 #app.config['JWT_BLACKLIST_ENABLED'] = True
@@ -59,24 +59,23 @@ def post_login():
  #        try:
  #            data = jwt.decode(token, app.config['SECRET_KEY'])
  #            return jsonify({'message': 'User is already logged in cant perform another login'}), 200
-	giver_password = None
 	username = request.form['username']
 	user = mongo.db.user.find_one({'username' : username})
 	if user:
 		if sha256_crypt.verify(str(request.form['password']), user['password']):
-			expires = datetime.timedelta(minutes=1)
-			access_token = create_access_token(identity = username , fresh = True, expires_delta=expires)
-			refresh_token = create_refresh_token(identity = username)
-			print(access_token)
-			# tokens = {
-			# 'message': 'User was created',
-			# 'access_token': access_token,
-			# 'refresh_token': refresh_token
-			# }
-			#return jsonify(tokens)
-			response = jsonify({'message': 'success'})
-			set_access_cookies(response, access_token)
-			return response
+			access_expires = datetime.timedelta(minutes=1)
+			refresh_expires = datetime.timedelta(minutes=60)
+			access_token = create_access_token(identity = username , fresh = True, expires_delta=access_expires)
+			refresh_token = create_refresh_token(identity = username, expires_delta = refresh_expires)
+			tokens = {
+			'message': 'Logged In',
+			'access_token': access_token,
+			'refresh_token': refresh_token
+			}
+			return jsonify(tokens)
+			#response = jsonify({'message': 'success'})
+			#set_access_cookies(response, access_token)
+			#return response
 		else:
 			return make_response(jsonify({'message': 'Wrong Password !'}))
 	return make_response(jsonify({'message': 'User Not Found'})), 401
@@ -94,14 +93,18 @@ def check_if_token_revoked(jwt_header, jwt_payload):
 
 
 
+
+
 @app.route('/api/user/logout',methods=['POST'])
 @jwt_required()
 def logout():
 	jti = get_jwt()['jti']
 	try:
+		refresh_expires = datetime.timedelta(seconds=2)
+		create_refresh_token(identity = get_jwt_identity(), expires_delta = refresh_expires)
 		revoked_token = Auth.add_revoked_token(jti, mongo)
 		response = jsonify({"msg": "logout successful"})
-		unset_jwt_cookies(response)
+		#unset_jwt_cookies(response)
 		return response
 	except:
 		return {'message': 'Something went wrong'}, 500
@@ -114,6 +117,7 @@ def logout():
 def refresh():
 	expires = datetime.timedelta(minutes=1)
 	new_token = create_access_token(identity=get_jwt_identity(), fresh = False, expires_delta=expires)
+	print("Refreshed")
 	return jsonify(new_token)
 
 
