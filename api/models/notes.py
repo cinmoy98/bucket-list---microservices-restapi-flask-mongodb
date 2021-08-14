@@ -3,22 +3,23 @@ import datetime
 from bson.objectid import ObjectId
 
 class Note(object):
-	def __init__(self, uid, title, description, category, country, city, yt_link, fb_link, blog_link, insta_link, gmap, _id = None):
+	def __init__(self,uid ,req , _id = None):
 		self.uid = uid
-		self.title = title
-		self.description = description
-		self.category = category
-		self.country = country
-		self.city = city
-		self.yt_link = yt_link
-		self.fb_link = fb_link
-		self.blog_link = blog_link
-		self.insta_link = insta_link
-		self.gmap = gmap
+		self.title = req['title']
+		self.description = req['description']
+		self.category = req.getlist('category')
+		self.country = req['country']
+		self.city = req['city']
+		self.yt_link = req.getlist('yt_link')
+		self.fb_link = req.getlist('fb_link')
+		self.blog_link = req.getlist('blog_link')
+		self.insta_link = req.getlist('insta_link')
+		self.gmap = req['gmap']
 		self._id = uuid.uuid4().hex if _id is None else _id
+	
 
 	def save_it(self, mongo):
-		mongo.db.test.insert(self.json(up=False))
+		mongo.db.buckets.insert(self.json(up=False))
 
 	def update_it(self,note_id, mongo):
 		mongo.db.test.update({'_id' : note_id}, {"$set": self.json(up=True)})
@@ -27,7 +28,6 @@ class Note(object):
 	def json(self, up):
 		json_ob =  {
 			'uid' : self.uid,
-			'title' : self.title,
 			'description' : self.description,
 			'category' : self.category,
 			'country' : self.country,
@@ -47,8 +47,6 @@ class Note(object):
 	def get_output(notes):
 		extract_output = [{
 				'uid' : user['uid'],
-				'title' : user['title'],
-				'_id' : user['_id'],
 				'description' : user['description'],
 				'category' : user['category'],
 				'country': user['country'],
@@ -62,8 +60,8 @@ class Note(object):
 		return extract_output
 
 	@staticmethod
-	def find_all_notes(mongo):
-		notes = mongo.db.test.find()
+	def find_all_notes(mongo, username):
+		notes = mongo.db.buckets.find({'uid' : username})
 		return(Note.get_output(notes))
 
 
@@ -89,7 +87,7 @@ class Note(object):
 		return (Note.get_output(notes))
 
 	@staticmethod
-	def find_by_category(category, mongo):
-		notes = mongo.db.test.find({'category' : category})
+	def find_by_category(category, mongo, username):
+		notes = mongo.db.buckets.find({'category' : category, 'uid' : username})
 		return (Note.get_output(notes))
 

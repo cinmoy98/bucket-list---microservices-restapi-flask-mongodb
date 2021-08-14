@@ -63,7 +63,7 @@ def post_login():
 	user = mongo.db.user.find_one({'username' : username})
 	if user:
 		if sha256_crypt.verify(str(request.form['password']), user['password']):
-			access_expires = datetime.timedelta(minutes=1)
+			access_expires = datetime.timedelta(minutes=10)
 			refresh_expires = datetime.timedelta(minutes=60)
 			access_token = create_access_token(identity = username , fresh = True, expires_delta=access_expires)
 			refresh_token = create_refresh_token(identity = username, expires_delta = refresh_expires)
