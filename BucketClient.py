@@ -21,18 +21,22 @@ class BucketClient:
 
 
 	@staticmethod
-	def get_notes_by_query(query):
+	def get_notes_by_query(quer):
 		url = 'http://127.0.0.3:5000/get_notes_by_query'
-		query = {
-		'category' : query[0],
-		'country' : query[1],
-		'city' : query[2]
-		}
+
+		query ={}
+
+		if quer[0] != 'All':
+			query['category'] = quer[0]
+		if quer[1] != 'All':
+			query['country'] = quer[1]
+		if quer[2] != 'All':
+			query['city'] = quer[2]
+		print(query)
 		headers = {'Authorization': 'Bearer '+global_var.tokens["access_token"]}
 		response = requests.request("GET", url = url, headers=headers, json = query)
 		if response:
 			responsearray = json.loads(response.text)
-			responsearray
 			return jsonify(responsearray)
 
 	@staticmethod
@@ -52,7 +56,6 @@ class BucketClient:
 		#print(responsearray)
 		if response:
 			responsearray=json.loads(response.text)
-			print(responsearray)
 			return responsearray
 
 	@staticmethod
@@ -72,7 +75,6 @@ class BucketClient:
 		response = requests.request("GET", url = url, headers=headers)
 		if response:
 			responsearray=json.loads(response.text)
-			print(responsearray)
 			return responsearray
 
 	@staticmethod

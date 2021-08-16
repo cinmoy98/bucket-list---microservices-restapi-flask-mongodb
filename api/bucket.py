@@ -58,7 +58,6 @@ def get_notes():
 	auth_header = request.headers.get('Authorization', None)
 	username = get_jwt_identity()
 	notes = Note.find_all_notes(mongo, username)
-	print(notes)
 	return jsonify(notes)
 
 @app.route('/get_notes_by_query', methods=['GET'])
@@ -66,10 +65,9 @@ def get_notes():
 def get_notes_by_query():
 	uid = get_jwt_identity()
 	query = request.json
-	db_ops = mongo.db.buckets
-	buckets = db_ops.find()
-	print(query)
-	return jsonify(query)
+	query['uid'] = uid
+	notes = Note.find_by_query(mongo, query)
+	return jsonify(notes)
 
 # getnote recieves _id of a particular note and fetch that note.
 @app.route('/getnote/<string:note_id>',methods=['GET'])

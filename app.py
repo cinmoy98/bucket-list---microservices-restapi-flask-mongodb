@@ -28,8 +28,6 @@ jwt = JWTManager(app)
 global_var.init()
 
 
-
-
 @app.route('/register', methods=['GET', 'POST'])
 def register():
 	form = frontend_forms.RegisterForm(request.form)
@@ -98,10 +96,9 @@ def dashboard():
 	form = frontend_forms.SelectForm()
 	countries = BucketClient.get_countries()
 	categories = BucketClient.get_categories()
-	print(categories)
 	form.country.choices =[(country, country) for country in countries]
-	form.country.choices.insert(0,(None,'All'))
-	form.city.choices.insert(0,(None,'All'))
+	form.country.choices.insert(0,('All','All'))
+	form.city.choices.insert(0,('All','All'))
 	buckets = BucketClient.get_notes()
 	buckets = buckets.get_json()
 
@@ -112,8 +109,7 @@ def dashboard():
 def get_city(country):
 	if country == 'None':
 		city_not_selected=[]
-		city_not_selected = [{'cityname':'Select Country', 'cityvalue':'None'}]
-		print(city_not_selected)
+		city_not_selected = [{'cityname':'Select Country', 'cityvalue':'All'}]
 		return jsonify({'cities' : city_not_selected})
 	cities = BucketClient.get_cities(country)
 	cityArray = []
@@ -123,16 +119,26 @@ def get_city(country):
 		cityobj['cityname'] = city
 		cityobj['cityvalue'] = city
 		cityArray.append(cityobj)
+	cityArray.insert(0, {'cityname':'Select City', 'cityvalue':'All'})
 	return jsonify({'cities' : cityArray})
 
 @app.route('/user_buckets', methods=['POST'])
 def user_buckets():
-	query = request.json
-	buckets = BucketClient.get_notes_by_query(query)
-	print(buckets)
-	return jsonify(query)
+	quer = request.json
+	bucket = BucketClient.get_notes_by_query(quer)
+	bucket = bucket.get_json()
+	#bucket = json.dumps(bucket)
+	print(bucket[0])
 
-@app.route('/buckets_by_category/<category>', methods=['GET'])
+	buckets = {
+	"country":['cinmoy', 'gourob', 'ayon'],
+	"city":"Brahmanabria",
+	"uid":"cinmoy98"
+	}
+
+	return jsonify(bucket)
+
+@app.route('/buckets_by_category/<category>', methods=['POST'])
 def buckets_by_category(category):
 	print(category)
 	response = BucketClient.get_by_category(category)

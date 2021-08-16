@@ -61,7 +61,12 @@ class Note(object):
 
 	@staticmethod
 	def find_all_notes(mongo, username):
-		notes = mongo.db.buckets.find({'uid' : username})
+		notes = mongo.db.buckets.find({'uid':username})
+		return(Note.get_output(notes))
+
+	@staticmethod
+	def find_by_query(mongo, query):
+		notes = mongo.db.buckets.find(query)
 		return(Note.get_output(notes))
 
 

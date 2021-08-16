@@ -23,9 +23,6 @@
 </form>
 
 <div id="board">
-	board
-</div>
-
 {% for bucket in buckets %}
 <div class="col-md-6">
       <div class="row g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
@@ -48,16 +45,17 @@
       </div>
     </div>
 {% endfor %}
+</div>
 
 <script>
 	let country_select = document.getElementById('country');
 	let city_select = document.getElementById('city');
 	let dynamic_div = document.getElementById('board');
 	// let dynamic_checkbox = document.querySelectorAll('#category')
-	let to_filter_chk = []
-	let to_filter_cn = []
-	let to_filter_ct = []
-	let to_filter = []
+	let to_filter_chk = 'All'
+	let to_filter_cn = country_select.value;
+	let to_filter_ct = city_select.value;
+	let to_filter = [to_filter_chk,to_filter_cn,to_filter_ct];
 
 	country_select.onchange = function() {
 
@@ -90,7 +88,12 @@
 	
 	$("input[type='checkbox']").change(function(){
 		var checkboxes = Array.from(document.querySelectorAll("input[type=checkbox][name=category]:checked")).map(e => e.value);
-		to_filter_chk = checkboxes;
+		if (checkboxes.length == 0){
+			to_filter_chk = "All";
+		}
+		else {
+			to_filter_chk = checkboxes;
+		}
 		to_filter = [to_filter_chk,to_filter_cn,to_filter_ct];
 		dynamic_div.innerHTML = to_filter;
 	});
@@ -101,7 +104,11 @@
 		fetch('/user_buckets', { headers: {
       'Content-Type': 'application/json'}, method: 'POST', body: JSON.stringify(to_filter) }).then(function(response){
 			response.json().then(function(data){
-				alert(data)
+				// var buckets = JSON.stringify(data, null, 4);
+				for (var bucket in data)
+				{
+					dynamic_div.innerHTML += "<div class='col-md-6'><div class='row g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative'><div class='col p-4 d-flex flex-column position-static'><strong class='d-inline-block mb-2 text-primary'>"+ data[bucket].category+"</strong><h3 class='mb-0'>"+data[bucket].title+"</h3><div class='mb-1 text-muted'>"+data[bucket].country+"</div><div class='mb-1 text-muted'>"+data[bucket].city+"</div><p class='card-text mb-auto'>Youtube Link <br> "+data[bucket].yt_link+"</p><p class='card-text mb-auto'>Facebook Link <br> "+data[bucket].fb_link+"</p><p class='card-text mb-auto'>Blog Link <br> "+data[bucket].blog_link+"</p><p class='card-text mb-auto'>Instagram Link <br> "+data[bucket].insta_link+"</p><a href='#' class='stretched-link'>Google Map : "+data[bucket].gmap+"</a></div><div class='col-auto d-none d-lg-block'><svg class='bd-placeholder-img' width='200' height='250' xmlns=''http://www.w3.org/2000/svg' role='img' aria-label='Placeholder: Thumbnail' preserveAspectRatio='xMidYMid slice' focusable='false'><title>Placeholder</title><rect width='100%' height='100%' fill='#55595c'></rect><text x='50%' y='50%' fill='#eceeef' dy='.3em'>Thumbnail</text></svg></div></div></div>"
+				}
 			})
 		})
 		return false;
