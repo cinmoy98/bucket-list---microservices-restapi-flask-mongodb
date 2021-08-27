@@ -24,7 +24,7 @@ class User:
 			self.response['data'] = user
 
 		except:
-			self.response['error'] = 'User Not Found..'
+			self.response['error'] = 'User Not Found'
 
 		return self.response
 
@@ -36,7 +36,7 @@ class User:
 			self.response['data'] = user_data
 
 		except:
-			self.response['error'] = 'Registration failed .. '
+			self.response['error'] = 'Registration failed'
 
 		return self.response
 

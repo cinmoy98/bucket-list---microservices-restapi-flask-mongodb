@@ -33,21 +33,7 @@ def create_note_test():
 		req = request.form
 		new_note = Note(uid, req)
 		new_note.save_it(mongo)
-	# uid = get_jwt_identity()
-	# title = request.form['title']
-	# description = request.form['description']
-	# category = request.form.getlist('category[]')
-	# country = request.form['country']
-	# city = request.form['city']
-	# yt_link = request.form.getlist('youtube[]')
-	# fb_link = request.form.getlist('facebook[]')
-	# blog_link = request.form.getlist('blog[]')
-	# insta_link = request.form.getlist('instagram[]')
-	# gmap = request.form['gmap']
-
-	# new_note = Note(uid, title, description, category, country, city, yt_link, fb_link, blog_link, insta_link, gmap)
-	# new_note.save_it(mongo)
-	return "Created !"
+	return "created",201
 
 
 
@@ -86,26 +72,26 @@ def get_categories():
 	categories = db_ops.distinct("category", {"uid" : uid})
 	return jsonify(categories)
 
-@app.route('/get_category/<catg>',methods=['GET'])
-@jwt_required()
-def get_category(catg):
-	username = get_jwt_identity()
-	notes = Note.find_by_category(catg, mongo, username)
-	print(jsonify(notes))
-	return jsonify(notes)
+# @app.route('/get_category/<catg>',methods=['GET'])
+# @jwt_required()
+# def get_category(catg):
+# 	username = get_jwt_identity()
+# 	notes = Note.find_by_category(catg, mongo, username)
+# 	print(jsonify(notes))
+# 	return jsonify(notes)
 
 
-@app.route('/get_country/<string:country>', methods=['GET'])
-def get_country(country):
-	notes = Note.find_by_country(country, mongo)
-	return jsonify(notes)
+# @app.route('/get_country/<string:country>', methods=['GET'])
+# def get_country(country):
+# 	notes = Note.find_by_country(country, mongo)
+# 	return jsonify(notes)
 
 
 
-@app.route('/get_city/<string:city>', methods=['GET'])
-def get_city(city):
-	notes = Note.find_by_city(city, mongo)
-	return jsonify(notes)
+# @app.route('/get_city/<string:city>', methods=['GET'])
+# def get_city(city):
+# 	notes = Note.find_by_city(city, mongo)
+# 	return jsonify(notes)
 
 
 

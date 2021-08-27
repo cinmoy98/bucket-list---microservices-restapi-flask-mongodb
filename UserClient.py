@@ -5,6 +5,7 @@ from datetime import datetime
 from datetime import timedelta
 from datetime import timezone
 import global_var
+import json
 
 class UserClient:
 
@@ -42,6 +43,7 @@ class UserClient:
 		url = 'http://127.0.0.1:5000/api/user/'+username+'/exists'
 		response = requests.request("GET", url=url)
 		return response.status_code == 200
+
 
 
 	@staticmethod
@@ -100,16 +102,40 @@ class UserClient:
 		return decoded_token['sub']
 
 
+	def check_response_status_code(response):
+		code = response.status_code
+		res = response.json()['msg']
+		print(res)
+		if code == 401:
+			if res == "Missing Authorization Header":
+				return "You have to login first."
+			elif res == "Token has expired":
+				return "Session expired. Log in again."
+			elif res == "Fresh token required":
+				return "Give your credentials again to continue."
+			else:
+				return "Unknown error ! Try logging again."
+		elif code == 422:
+			if res == "Signature verification failed":
+				return "Signature verification failed"
+			else:
+				return "Unknown error ! Try logging again."
+		else:
+			return "Unknown error ! Try logging again."
+
+
 	@staticmethod
-	@verify_token()
+	#@verify_token()
 	def check():
 		url = 'http://127.0.0.1:5000/protected'
 		#print(UserClient.cookies)
 		headers = {'Authorization': 'Bearer '+global_var.tokens["access_token"]}
 		response = requests.request("GET", url = url, headers=headers)
-		#print (response.json())
-		if response:
+		if response.status_code == 200:
 			return response.json()
+		else:
+			print(response.status_code)
+			return(UserClient.check_response_status_code(response))
 
 	@staticmethod
 	def logout():

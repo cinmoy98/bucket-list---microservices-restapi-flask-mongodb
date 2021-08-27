@@ -7,6 +7,7 @@ from flask_jwt_extended import (create_access_token, create_refresh_token, jwt_r
 	set_access_cookies, unset_jwt_cookies)
 from flask_jwt_extended import JWTManager
 from bson import ObjectId
+import json
 
 app = Flask(__name__)
 
@@ -29,7 +30,7 @@ def get_username(username):
 	response = user.get_username(username, mongo)
 	print(response)
 	if response['data'] is not None:
-		return 'true'
+		return 'true', 200
 	else:
 		return 'false' , 404
 
@@ -43,13 +44,12 @@ def post_register():
 	'last_name' : request.form['lastname'],
 	'password' : sha256_crypt.hash((str(request.form['password'])))
 	}
-	print(user_data)
 	user = User(mongo)
 	response = user.save_user(user_data, mongo)
 	if response['data'] is not None:
-		return "registerd !"
+		return "registerd",201
 	else:
-		return "Not registered !"
+		return "registration-failed", 400
 
 
 @app.route('/api/user/login', methods=["POST"])
@@ -63,22 +63,22 @@ def post_login():
 	user = mongo.db.user.find_one({'username' : username})
 	if user:
 		if sha256_crypt.verify(str(request.form['password']), user['password']):
-			access_expires = datetime.timedelta(minutes=10)
-			refresh_expires = datetime.timedelta(minutes=60)
+			access_expires = datetime.timedelta(seconds=10)
+			refresh_expires = datetime.timedelta(minutes=120)
 			access_token = create_access_token(identity = username , fresh = True, expires_delta=access_expires)
 			refresh_token = create_refresh_token(identity = username, expires_delta = refresh_expires)
 			tokens = {
-			'message': 'Logged In',
+			'msg': 'logged-in',
 			'access_token': access_token,
 			'refresh_token': refresh_token
 			}
-			return jsonify(tokens)
+			return jsonify(tokens), 200
 			#response = jsonify({'message': 'success'})
 			#set_access_cookies(response, access_token)
 			#return response
 		else:
-			return make_response(jsonify({'message': 'Wrong Password !'}))
-	return make_response(jsonify({'message': 'User Not Found'})), 401
+			return make_response(jsonify({'msg': 'wrong-password'})), 401
+	return make_response(jsonify({'msg': 'user-not-found'})), 404
 
 
 
@@ -103,11 +103,10 @@ def logout():
 		refresh_expires = datetime.timedelta(seconds=2)
 		create_refresh_token(identity = get_jwt_identity(), expires_delta = refresh_expires)
 		revoked_token = Auth.add_revoked_token(jti, mongo)
-		response = jsonify({"msg": "logout successful"})
-		#unset_jwt_cookies(response)
-		return response
+		response = jsonify({"msg": "logout-successful"})
+		return response, 200
 	except:
-		return {'message': 'Something went wrong'}, 500
+		return {'msg': 'something-went-wrong'}, 500
 
 
 
