@@ -17,9 +17,7 @@ class UserClient:
 		def wrapper(fn):
 			@wraps(fn)
 			def decorator(*args,**kwargs):
-				print(global_var.tokens)
 				decoded_token = decode_token(global_var.tokens['access_token'], allow_expired=True)
-				print(decoded_token)
 				exp_timestamp = decoded_token['exp']
 				now = datetime.now(timezone.utc)
 				target_timestamp = datetime.timestamp(now + timedelta(minutes=5))
@@ -30,7 +28,6 @@ class UserClient:
 					if response:
 						new_token = response.json()
 						global_var.tokens['access_token'] = new_token
-						print('refreshed')
 						return fn(*args, **kwargs)
 				else:
 					return fn(*args, **kwargs)
@@ -125,7 +122,7 @@ class UserClient:
 
 
 	@staticmethod
-	#@verify_token()
+	@verify_token()
 	def check():
 		url = 'http://127.0.0.1:5000/protected'
 		#print(UserClient.cookies)
@@ -138,6 +135,7 @@ class UserClient:
 			return(UserClient.check_response_status_code(response))
 
 	@staticmethod
+	@verify_token()
 	def logout():
 		url = "http://127.0.0.1:5000/api/user/logout"
 		headers = {'Authorization': 'Bearer '+global_var.tokens["access_token"]}
