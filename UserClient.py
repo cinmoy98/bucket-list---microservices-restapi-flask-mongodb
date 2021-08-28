@@ -13,6 +13,28 @@ class UserClient:
 		self.cookies = None
 
 
+	def check_response_status_code(response):
+		code = response.status_code
+		res = response.json()['msg']
+		print(res)
+		if code == 401:
+			if res == "Missing Authorization Header":
+				return "You have to login first."
+			elif res == "Token has expired":
+				return "Session expired. Log in again."
+			elif res == "Fresh token required":
+				return "Give your credentials again to continue."
+			else:
+				return "Unknown error ! Try logging again."
+		elif code == 422:
+			if res == "Signature verification failed":
+				return "Signature verification failed"
+			else:
+				return "Unknown error ! Try logging again."
+		else:
+			return "Unknown error ! Try logging again."
+
+
 	def verify_token():
 		def wrapper(fn):
 			@wraps(fn)
@@ -99,28 +121,6 @@ class UserClient:
 		return decoded_token['sub']
 
 
-	def check_response_status_code(response):
-		code = response.status_code
-		res = response.json()['msg']
-		print(res)
-		if code == 401:
-			if res == "Missing Authorization Header":
-				return "You have to login first."
-			elif res == "Token has expired":
-				return "Session expired. Log in again."
-			elif res == "Fresh token required":
-				return "Give your credentials again to continue."
-			else:
-				return "Unknown error ! Try logging again."
-		elif code == 422:
-			if res == "Signature verification failed":
-				return "Signature verification failed"
-			else:
-				return "Unknown error ! Try logging again."
-		else:
-			return "Unknown error ! Try logging again."
-
-
 	@staticmethod
 	@verify_token()
 	def check():
@@ -146,13 +146,3 @@ class UserClient:
 				global_var.tokens['access_token'] = None
 				global_var.tokens['refresh_token'] = None
 			return "Logout Successful"
-
-
-	# @staticmethod
-	# def refresh():
-	# 	url = 'http://127.0.0.2:5000/api/user/refresh'
-	# 	headers = {'Authorization': 'Bearer '+global_var.tokens["refresh_token"]}
-	# 	response = requests.request("GET", url = url, headers=headers)
-	# 	if response:
-	# 		print(response.json())
-	# 		return "Refresh done"

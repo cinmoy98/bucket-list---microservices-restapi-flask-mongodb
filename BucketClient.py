@@ -14,27 +14,6 @@ class BucketClient:
 		self.cookies = None
 
 
-	def verify_token():
-		def wrapper(fn):
-			@wraps(fn)
-			def decorator(*args,**kwargs):
-				decoded_token = decode_token(global_var.tokens['access_token'], allow_expired=True)
-				exp_timestamp = decoded_token['exp']
-				now = datetime.now(timezone.utc)
-				target_timestamp = datetime.timestamp(now + timedelta(minutes=5))
-				if target_timestamp > exp_timestamp:
-					url = 'http://127.0.0.1:5000/api/user/refresh'
-					headers = {'Authorization': 'Bearer '+global_var.tokens["refresh_token"]}
-					response = requests.request("GET", url = url, headers=headers)
-					if response:
-						new_token = response.json()
-						global_var.tokens['access_token'] = new_token
-						return fn(*args, **kwargs)
-				else:
-					return fn(*args, **kwargs)
-			return decorator
-		return wrapper
-
 	def check_response_status_code(response):
 		code = response.status_code
 		res = response.json()['msg']
@@ -55,6 +34,28 @@ class BucketClient:
 				return "Unknown error ! Try logging again."
 		else:
 			return "Unknown error ! Try logging again."
+
+
+	def verify_token():
+		def wrapper(fn):
+			@wraps(fn)
+			def decorator(*args,**kwargs):
+				decoded_token = decode_token(global_var.tokens['access_token'], allow_expired=True)
+				exp_timestamp = decoded_token['exp']
+				now = datetime.now(timezone.utc)
+				target_timestamp = datetime.timestamp(now + timedelta(minutes=5))
+				if target_timestamp > exp_timestamp:
+					url = 'http://127.0.0.1:5000/api/user/refresh'
+					headers = {'Authorization': 'Bearer '+global_var.tokens["refresh_token"]}
+					response = requests.request("GET", url = url, headers=headers)
+					if response:
+						new_token = response.json()
+						global_var.tokens['access_token'] = new_token
+						return fn(*args, **kwargs)
+				else:
+					return fn(*args, **kwargs)
+			return decorator
+		return wrapper
 
 	@staticmethod
 	@verify_token()
