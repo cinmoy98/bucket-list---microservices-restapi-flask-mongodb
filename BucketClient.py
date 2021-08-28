@@ -48,10 +48,12 @@ class BucketClient:
 					url = 'http://127.0.0.1:5000/api/user/refresh'
 					headers = {'Authorization': 'Bearer '+global_var.tokens["refresh_token"]}
 					response = requests.request("GET", url = url, headers=headers)
-					if response:
+					if response.status_code == 200:
 						new_token = response.json()
 						global_var.tokens['access_token'] = new_token
 						return fn(*args, **kwargs)
+					else:
+						return(UserClient.check_response_status_code(response))
 				else:
 					return fn(*args, **kwargs)
 			return decorator

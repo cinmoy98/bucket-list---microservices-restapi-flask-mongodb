@@ -64,7 +64,7 @@ def post_login():
 	if user:
 		if sha256_crypt.verify(str(request.form['password']), user['password']):
 			access_expires = datetime.timedelta(seconds=10)
-			refresh_expires = datetime.timedelta(minutes=120)
+			refresh_expires = datetime.timedelta(seconds=30)
 			access_token = create_access_token(identity = username , fresh = True, expires_delta=access_expires)
 			refresh_token = create_refresh_token(identity = username, expires_delta = refresh_expires)
 			tokens = {
@@ -100,8 +100,8 @@ def check_if_token_revoked(jwt_header, jwt_payload):
 def logout():
 	jti = get_jwt()['jti']
 	try:
-		refresh_expires = datetime.timedelta(seconds=2)
-		create_refresh_token(identity = get_jwt_identity(), expires_delta = refresh_expires)
+		refresh_expires = datetime.timedelta(seconds=1)
+		create_refresh_token(identity = "Expired", expires_delta = refresh_expires)
 		revoked_token = Auth.add_revoked_token(jti, mongo)
 		response = jsonify({"msg": "logout-successful"})
 		return response, 200
@@ -116,7 +116,6 @@ def logout():
 def refresh():
 	expires = datetime.timedelta(minutes=1)
 	new_token = create_access_token(identity=get_jwt_identity(), fresh = False, expires_delta=expires)
-	print("Refreshed")
 	return jsonify(new_token)
 
 

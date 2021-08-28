@@ -16,7 +16,6 @@ class UserClient:
 	def check_response_status_code(response):
 		code = response.status_code
 		res = response.json()['msg']
-		print(res)
 		if code == 401:
 			if res == "Missing Authorization Header":
 				return "You have to login first."
@@ -47,10 +46,15 @@ class UserClient:
 					url = 'http://127.0.0.1:5000/api/user/refresh'
 					headers = {'Authorization': 'Bearer '+global_var.tokens["refresh_token"]}
 					response = requests.request("GET", url = url, headers=headers)
-					if response:
+					
+					if response.status_code == 200:
 						new_token = response.json()
 						global_var.tokens['access_token'] = new_token
+						print("refreshed")
 						return fn(*args, **kwargs)
+					else:
+						print("expired")
+						return(UserClient.check_response_status_code(response))
 				else:
 					return fn(*args, **kwargs)
 			return decorator
