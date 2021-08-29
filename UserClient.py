@@ -53,7 +53,6 @@ class UserClient:
 						print("refreshed")
 						return fn(*args, **kwargs)
 					else:
-						print("expired")
 						return(UserClient.check_response_status_code(response))
 				else:
 					return fn(*args, **kwargs)
@@ -133,7 +132,7 @@ class UserClient:
 		headers = {'Authorization': 'Bearer '+global_var.tokens["access_token"]}
 		response = requests.request("GET", url = url, headers=headers)
 		if response.status_code == 200:
-			return response.json()
+			return response
 		else:
 			print(response.status_code)
 			return(UserClient.check_response_status_code(response))
@@ -146,7 +145,7 @@ class UserClient:
 		response = requests.request("POST", url = url, headers=headers)
 		if response:
 			dt = response.json()
-			if dt['msg'] == "logout successful":
+			if dt['msg'] == "logout-successful":
 				global_var.tokens['access_token'] = None
 				global_var.tokens['refresh_token'] = None
 			return "Logout Successful"

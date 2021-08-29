@@ -72,8 +72,9 @@ def login():
 @app.route('/check',methods=['GET'])
 def check():
 	response = UserClient.check()
-	#print (response)
-	return render_template('home.html', response = response)
+	print("response checking in app")
+	print (response.status_code)
+	return response.json()
 
 @app.route('/logout', methods=['POST', 'GET'])
 def logout():

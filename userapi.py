@@ -54,17 +54,12 @@ def post_register():
 
 @app.route('/api/user/login', methods=["POST"])
 def post_login():
-	# if 'x-access-token' in request.cookies:
- #        token = request.cookies['x-access-token']
- #        try:
- #            data = jwt.decode(token, app.config['SECRET_KEY'])
- #            return jsonify({'message': 'User is already logged in cant perform another login'}), 200
 	username = request.form['username']
 	user = mongo.db.user.find_one({'username' : username})
 	if user:
 		if sha256_crypt.verify(str(request.form['password']), user['password']):
-			access_expires = datetime.timedelta(seconds=10)
-			refresh_expires = datetime.timedelta(seconds=30)
+			access_expires = datetime.timedelta(minutes=15)
+			refresh_expires = datetime.timedelta(minutes=60)
 			access_token = create_access_token(identity = username , fresh = True, expires_delta=access_expires)
 			refresh_token = create_refresh_token(identity = username, expires_delta = refresh_expires)
 			tokens = {
@@ -73,9 +68,6 @@ def post_login():
 			'refresh_token': refresh_token
 			}
 			return jsonify(tokens), 200
-			#response = jsonify({'message': 'success'})
-			#set_access_cookies(response, access_token)
-			#return response
 		else:
 			return make_response(jsonify({'msg': 'wrong-password'})), 401
 	return make_response(jsonify({'msg': 'user-not-found'})), 404
