@@ -62,7 +62,7 @@ class BucketClient:
 	@staticmethod
 	@verify_token()
 	def get_notes():
-		url = 'http://127.0.0.3:5000/getnotes'
+		url = 'http://127.0.0.3:5000/api/bucket/allNotes'
 		headers = {'Authorization': 'Bearer '+global_var.tokens["access_token"]}
 		response = requests.request("GET", url = url, headers=headers)
 		if response:
@@ -73,7 +73,7 @@ class BucketClient:
 	@staticmethod
 	@verify_token()
 	def get_notes_by_query(quer):
-		url = 'http://127.0.0.3:5000/get_notes_by_query'
+		url = 'http://127.0.0.3:5000/api/bucket/notesByQuery'
 
 		query ={}
 
@@ -103,7 +103,7 @@ class BucketClient:
 	@staticmethod
 	@verify_token()
 	def get_countries():
-		url = 'http://127.0.0.3:5000/get_countries'
+		url = 'http://127.0.0.3:5000/api/bucket/distinctCountries'
 		headers = {'Authorization': 'Bearer '+global_var.tokens["access_token"]}
 		response = requests.request("GET", url = url, headers=headers)
 		#print(responsearray)
@@ -114,7 +114,7 @@ class BucketClient:
 	@staticmethod
 	@verify_token()
 	def get_categories():
-		url = 'http://127.0.0.3:5000/get_categories'
+		url = 'http://127.0.0.3:5000/api/bucket/distictCat'
 		headers = {'Authorization': 'Bearer '+global_var.tokens["access_token"]}
 		response = requests.request("GET", url = url, headers=headers)
 		#print(responsearray)
@@ -125,7 +125,7 @@ class BucketClient:
 	@staticmethod
 	@verify_token()
 	def get_cities(country):
-		url = 'http://127.0.0.3:5000/get_cities/'+country
+		url = 'http://127.0.0.3:5000/api/bucket/cities/'+country
 		headers = {'Authorization': 'Bearer '+global_var.tokens["access_token"]}
 		response = requests.request("GET", url = url, headers=headers)
 		if response:
@@ -148,7 +148,7 @@ class BucketClient:
 		'gmap' : form.gmap.data
 		}
 		print(payload)
-		url = 'http://127.0.0.3:5000/create_note'
+		url = 'http://127.0.0.3:5000/api/bucket/newNote'
 		headers = {'Authorization': 'Bearer '+global_var.tokens["access_token"]}
 		response = requests.request("POST", url = url, headers=headers, data = payload)
 		if response:
