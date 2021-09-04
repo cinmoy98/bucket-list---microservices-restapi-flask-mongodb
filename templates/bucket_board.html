@@ -87,6 +87,7 @@
 	}
 	
 	$("input[type='checkbox']").change(function(){
+		console.log("checkboxes checked");
 		var checkboxes = Array.from(document.querySelectorAll("input[type=checkbox][name=category]:checked")).map(e => e.value);
 		if (checkboxes.length == 0){
 			to_filter_chk = "All";
