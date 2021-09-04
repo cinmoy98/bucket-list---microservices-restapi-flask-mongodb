@@ -21,56 +21,74 @@ app.config["MONGO_URI"] = "mongodb://localhost:27017/bucket_list"
 app.config['SECRET_KEY'] = "Thisisreallysecret"
 app.config['JWT_SECRET_KEY'] = "DoNotExpose"
 
+# MongoDb Object for performing operations
 mongo = PyMongo(app)
+
+# JWT Object for protecting routes, creating and verifying tokens
 jwt = JWTManager(app)
 
 
-@app.route('/create_note',methods=['POST'])
+# Creates new note save it to database
+@app.route('/api/bucket/newNote',methods=['POST'])
 @jwt_required()
-def create_note_test():
+def create_note():
 	if request.method == 'POST':
 		uid = get_jwt_identity()
 		req = request.form
 		new_note = Note(uid, req)
 		new_note.save_it(mongo)
-	return "created",201
+		return "created",201
+	else:
+		return "failed", 400
 
 
 
-
-@app.route('/getnotes',methods=['GET'])
+@app.route('/api/bucket/allNotes',methods=['GET'])
 @jwt_required()
 def get_notes():
-	auth_header = request.headers.get('Authorization', None)
-	username = get_jwt_identity()
-	notes = Note.find_all_notes(mongo, username)
-	return jsonify(notes)
+	try:
+		username = get_jwt_identity()
+		notes = Note.find_all_notes(mongo, username)
+		return jsonify(notes), 200
+	except:
+		return jsonify("Not Found"), 404
 
-@app.route('/get_notes_by_query', methods=['GET'])
+@app.route('/api/bucket/notesByQuery', methods=['GET'])
 @jwt_required()
 def get_notes_by_query():
-	uid = get_jwt_identity()
-	query = request.json
-	query['uid'] = uid
-	notes = Note.find_by_query(mongo, query)
-	return jsonify(notes)
+	try:
+		uid = get_jwt_identity()
+		query = request.json
+		if 'category' in query:
+			category = query['category']
+			query['category'] = {}
+			query['category']['$in'] = category
+		query['uid'] = uid
+		notes = Note.find_by_query(mongo, query)
+		return jsonify(notes), 200
+	except:
+		return jsonify("not-found"), 404
 
 # getnote recieves _id of a particular note and fetch that note.
-@app.route('/getnote/<string:note_id>',methods=['GET'])
+@app.route('/api/bucket/note/<string:note_id>',methods=['GET'])
 def get_note(note_id):
-	note = Note.find_by_note_id(note_id, mongo)
-	print(note['title'])
-	return jsonify(note)
+	try:
+		note = Note.find_by_note_id(note_id, mongo)
+		return jsonify(note), 200
+	except:
+		return jsonify("not-found"), 404
 
 
-
-@app.route('/get_categories', methods=['GET'])
+@app.route('/api/bucket/distictCat', methods=['GET'])
 @jwt_required()
 def get_categories():
-	uid = get_jwt_identity()
-	db_ops = mongo.db.buckets
-	categories = db_ops.distinct("category", {"uid" : uid})
-	return jsonify(categories)
+	try:
+		uid = get_jwt_identity()
+		db_ops = mongo.db.buckets
+		categories = db_ops.distinct("category", {"uid" : uid})
+		return jsonify(categories), 200
+	except:
+		return jsonify("failed-fetching-categories"), 404
 
 # @app.route('/get_category/<catg>',methods=['GET'])
 # @jwt_required()
@@ -95,25 +113,28 @@ def get_categories():
 
 
 
-@app.route('/get_cities/<string:country>', methods=['GET'])
+@app.route('/api/bucket/cities/<string:country>', methods=['GET'])
 @jwt_required()
 def get_cities(country):
-	uid = get_jwt_identity()
-	db_ops = mongo.db.buckets
+	try:
+		uid = get_jwt_identity()
+		db_ops = mongo.db.buckets
+		cities = db_ops.distinct("city", {"country" : country, "uid" : uid})
+		return jsonify(cities), 200
+	except:
+		return jsonify('failed-fetching-cities'), 404
 
-	cities = db_ops.distinct("city", {"country" : country, "uid" : uid})
-	#output = [{city['city']} for city in cities]
-	return jsonify(cities)
 
-
-@app.route('/get_countries',methods=['GET'])
+@app.route('/api/bucket/distinctCountries',methods=['GET'])
 @jwt_required()
 def get_countries():
-	uid = get_jwt_identity()
-	db_ops = mongo.db.buckets
-
-	countries = db_ops.distinct("country", {"uid" : uid})
-	return jsonify(countries)
+	try:
+		uid = get_jwt_identity()
+		db_ops = mongo.db.buckets
+		countries = db_ops.distinct("country", {"uid" : uid})
+		return jsonify(countries), 200
+	except:
+		return jsonify('failed-fetching-countries'), 404
 
 
 
