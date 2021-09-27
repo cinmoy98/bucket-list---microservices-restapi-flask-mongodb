@@ -24,6 +24,7 @@ mongo = PyMongo(app)
 jwt = JWTManager(app)
 
 
+
 @app.route('/api/user/<string:username>/exists',methods=['GET'])
 def get_username(username):
 	user = User(mongo)
@@ -33,6 +34,8 @@ def get_username(username):
 		return 'true', 200
 	else:
 		return 'false' , 404
+
+
 
 
 @app.route('/api/user/create', methods=['POST'])
@@ -52,13 +55,15 @@ def post_register():
 		return "registration-failed", 400
 
 
+
+
 @app.route('/api/user/login', methods=["POST"])
 def post_login():
 	username = request.form['username']
 	user = mongo.db.user.find_one({'username' : username})
 	if user:
 		if sha256_crypt.verify(str(request.form['password']), user['password']):
-			access_expires = datetime.timedelta(minutes=15)
+			access_expires = datetime.timedelta(minutes=30)
 			refresh_expires = datetime.timedelta(minutes=60)
 			access_token = create_access_token(identity = username , fresh = True, expires_delta=access_expires)
 			refresh_token = create_refresh_token(identity = username, expires_delta = refresh_expires)
@@ -84,9 +89,6 @@ def check_if_token_revoked(jwt_header, jwt_payload):
 
 
 
-
-
-
 @app.route('/api/user/logout',methods=['POST'])
 @jwt_required()
 def logout():
@@ -95,18 +97,17 @@ def logout():
 		refresh_expires = datetime.timedelta(seconds=1)
 		create_refresh_token(identity = "Expired", expires_delta = refresh_expires)
 		revoked_token = Auth.add_revoked_token(jti, mongo)
-		response = jsonify({"msg": "logout-successful"})
+		response = jsonify({"msg": "Logout Successful"})
 		return response, 200
 	except:
 		return {'msg': 'something-went-wrong'}, 500
 
 
 
-
 @app.route('/api/user/refresh', methods=['GET'])
 @jwt_required(refresh=True)
 def refresh():
-	expires = datetime.timedelta(minutes=1)
+	expires = datetime.timedelta(minutes=10)
 	new_token = create_access_token(identity=get_jwt_identity(), fresh = False, expires_delta=expires)
 	return jsonify(new_token)
 
@@ -119,8 +120,6 @@ def protected():
 
 
 
-
-
 @app.route('/test',methods=['GET'])
 def test():
 	user = mongo.db.user.find_one({'username' : 'cinmoy98'})
@@ -128,7 +127,5 @@ def test():
 	return "done"
 
 
-
-
 if __name__ == '__main__':
-	app.run(debug=True)
+	app.run(host = '127.0.0.2', port=5000, debug=True)

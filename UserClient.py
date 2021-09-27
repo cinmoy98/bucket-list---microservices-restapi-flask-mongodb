@@ -36,35 +36,6 @@ class UserClient:
 		else:
 			return "Unknown error ! Try logging again."
 
-
-	def verify_token():
-		def wrapper(fn):
-			@wraps(fn)
-			def decorator(*args,**kwargs):
-				if global_var.tokens['access_token'] == None:
-					redirect(url_for('login'))
-				decoded_token = decode_token(global_var.tokens['access_token'], allow_expired=True)
-				exp_timestamp = decoded_token['exp']
-				now = datetime.now(timezone.utc)
-				target_timestamp = datetime.timestamp(now + timedelta(minutes=5))
-				if target_timestamp > exp_timestamp:
-					url = 'http://127.0.0.2:5000/api/user/refresh'
-					headers = {'Authorization': 'Bearer '+global_var.tokens["refresh_token"]}
-					response = requests.request("GET", url = url, headers=headers)
-					
-					if response.status_code == 200:
-						new_token = response.json()
-						global_var.tokens['access_token'] = new_token
-						print("refreshed")
-						return fn(*args, **kwargs)
-					else:
-						return(UserClient.check_response_status_code(response))
-				else:
-					return fn(*args, **kwargs)
-			return decorator
-		return wrapper
-
-
 	@staticmethod
 	def does_exist(username):
 		url = 'http://127.0.0.2:5000/api/user/'+username+'/exists'
@@ -102,21 +73,30 @@ class UserClient:
 			#UserClient.cookies = response.cookies
 			dt = response.json()
 			if dt['access_token'] is not None:
-				global_var.tokens = {
-				'access_token' : dt['access_token'],
-				'refresh_token' : dt['refresh_token']
-				}
-			return response.status_code
+				# global_var.tokens = {
+				# 'access_token' : dt['access_token'],
+				# 'refresh_token' : dt['refresh_token']
+				# }
+				return response, response.status_code
+			else:
+				return "failed", 401
 
-	def check_if_logged_in():
-		if global_var.tokens['access_token'] == None:
-			return False
+	def check_if_logged_in(request):
+		if 'access_token_cookie' in request.cookies:
+			decoded_token = decode_token(request.cookies['access_token_cookie'], allow_expired=True)
+			exp_timestamp = decoded_token['exp']
+			now = datetime.now(timezone.utc)
+			now_timestamp = datetime.timestamp(now)
+			if now_timestamp <= exp_timestamp:
+				return True
+			else:
+				return False
 		else:
-			return True
+			return False
 
 	@staticmethod
-	def get_user():
-		decoded_token = decode_token(global_var.tokens['access_token'], allow_expired=True)
+	def get_user(access_token):
+		decoded_token = decode_token(access_token, allow_expired=True)
 		return decoded_token['sub']
 
 
