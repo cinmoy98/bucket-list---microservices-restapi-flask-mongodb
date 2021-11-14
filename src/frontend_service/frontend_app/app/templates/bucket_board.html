@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title></title>
+	<!-- CSS only -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
+<!-- JavaScript Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj" crossorigin="anonymous"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+</head>
+<body>
+<form method="POST" onsubmit="return showdata()">
+{{form.country}}
+{{form.city}}
+<br>
+{% for category in categories %}
+	<input type="checkbox" id="category" name="category" value={{category}}>
+	<label for="category">{{category}}</label><br>
+{% endfor %}
+<input type="submit">
+</form>
+
+<div id="board">
+{% for bucket in buckets %}
+<div class="col-md-6">
+	<div class="row g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
+		<div class="col p-4 d-flex flex-column position-static">
+			<strong class="d-inline-block mb-2 text-primary">{{ bucket['category'] }}</strong>
+			<h3 class="mb-0">{{bucket['title']}}</h3>
+			<div class="mb-1 text-muted">{{ bucket['city'] }}, {{ bucket['country'] }}</div>
+			<p class="card-text mb-auto">Youtube Link : {{ bucket['yt_link'] }}</p>
+			<p class="card-text mb-auto">Facebook Link : {{ bucket['fb_link'] }}</p>
+			<p class="card-text mb-auto">Blog Link : {{ bucket['blog_link'] }}</p>
+			<p class="card-text mb-auto">Instagram Link : {{ bucket['insta_link'] }}</p>
+
+			<a href="{{ bucket['gmap'] }}">Google Map</a>
+		</div>
+	</div>
+</div>
+{% endfor %}
+</div>
+
+<script>
+	let country_select = document.getElementById('country');
+	let city_select = document.getElementById('city');
+	let dynamic_div = document.getElementById('board');
+	// let dynamic_checkbox = document.querySelectorAll('#category')
+	let to_filter_chk = 'All'
+	let to_filter_cn = country_select.value;
+	let to_filter_ct = city_select.value;
+	let to_filter = [to_filter_chk,to_filter_cn,to_filter_ct];
+
+	country_select.onchange = function() {
+
+		country = country_select.value;
+
+		fetch('/city/' + country).then(function(response) {
+			response.json().then(function(data) {
+				let optionHTML = '';
+
+				for (let city of data.cities) {
+					optionHTML += '<option value="' + city.cityvalue +'">' + city.cityname + '</option>';
+				}
+				city_select.innerHTML = optionHTML;
+			})
+		})
+		to_filter_cn = country_select.value;
+		to_filter = [to_filter_chk,to_filter_cn,to_filter_ct];
+		dynamic_div.innerHTML = to_filter;
+	}
+
+	// country_select.onchange = function(){
+		
+	// }
+
+	city_select.onchange = function(){
+		to_filter_ct = city_select.value;
+		to_filter = [to_filter_chk,to_filter_cn,to_filter_ct];
+		dynamic_div.innerHTML = to_filter;
+	}
+	
+	$("input[type='checkbox']").change(function(){
+		console.log("checkboxes checked");
+		var checkboxes = Array.from(document.querySelectorAll("input[type=checkbox][name=category]:checked")).map(e => e.value);
+		if (checkboxes.length == 0){
+			to_filter_chk = "All";
+		}
+		else {
+			to_filter_chk = checkboxes;
+		}
+		to_filter = [to_filter_chk,to_filter_cn,to_filter_ct];
+		dynamic_div.innerHTML = to_filter;
+	});
+
+		
+
+	function showdata(){
+		fetch('/user_buckets', { headers: {
+      'Content-Type': 'application/json'}, method: 'POST', body: JSON.stringify(to_filter) }).then(function(response){
+			response.json().then(function(data){
+				// var buckets = JSON.stringify(data, null, 4);
+				for (var bucket in data)
+				{
+					dynamic_div.innerHTML += "<div class='col-md-6'><div class='row g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative'><div class='col p-4 d-flex flex-column position-static'><strong class='d-inline-block mb-2 text-primary'>"+ data[bucket].category+"</strong><h3 class='mb-0'>"+data[bucket].title+"</h3><div class='mb-1 text-muted'>"+data[bucket].country+"</div><div class='mb-1 text-muted'>"+data[bucket].city+"</div><p class='card-text mb-auto'>Youtube Link <br> "+data[bucket].yt_link+"</p><p class='card-text mb-auto'>Facebook Link <br> "+data[bucket].fb_link+"</p><p class='card-text mb-auto'>Blog Link <br> "+data[bucket].blog_link+"</p><p class='card-text mb-auto'>Instagram Link <br> "+data[bucket].insta_link+"</p><a href='#' class='stretched-link'>Google Map : "+data[bucket].gmap+"</a></div><div class='col-auto d-none d-lg-block'><svg class='bd-placeholder-img' width='200' height='250' xmlns=''http://www.w3.org/2000/svg' role='img' aria-label='Placeholder: Thumbnail' preserveAspectRatio='xMidYMid slice' focusable='false'><title>Placeholder</title><rect width='100%' height='100%' fill='#55595c'></rect><text x='50%' y='50%' fill='#eceeef' dy='.3em'>Thumbnail</text></svg></div></div></div>"
+				}
+			})
+		})
+		return false;
+	}
+
+</script>
+
+</body>
+</html>

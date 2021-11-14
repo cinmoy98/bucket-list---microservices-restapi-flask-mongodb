@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='form-validation.css') }}">
+{% block title %}New Note{% endblock %}
+{% block content %}
+<div class="container">
+	<main>
+
+
+		<div class="row g-5">
+			<div class="col-md-7 col-lg-6">
+				<h4 class="mb-3">Add New Note</h4>
+				<form class="needs-validation" novalidate action="/create_note" method="POST">
+					<div class="row g-3">
+
+						<div class="col-12">
+							<label for="title" class="form-label">Title</label>
+							<div class="input-group has-validation">
+								<span class="input-group-text">@</span>
+								{{form.title(class="form-control form-control-sm", placeholder="Title")}}
+								<div class="invalid-feedback">
+									Title is required.
+								</div>
+							</div>
+						</div>
+
+						<div class="col-12">
+							<label for="description" class="form-label">Description</label>
+							{{form.description(class="form-control", placeholder="Description")}}
+							<div class="invalid-feedback">
+								Description is required.
+							</div>
+						</div>
+
+						<hr class="my-4">
+
+						<label class="form-label">Categories</label>
+						{% for cat in form.category %}
+						<div class="form-check">
+							{{ cat(class="form-check-input") }}
+							{{ cat.label(class="form-check-label") }}
+						</div>
+						{% endfor %}
+
+						<hr class="my-4">
+
+
+						<div class="col-md-5">
+							<label for="country" class="form-label">Country</label>
+							{{form.country(class="form-select")}}
+							<div class="invalid-feedback">
+								Please select a valid country.
+							</div>
+						</div>
+
+						<div class="col-md-4">
+							<label for="city" class="form-label">City</label>
+							{{form.city(class="form-control")}}
+							<div class="invalid-feedback">
+								Please provide a city.
+							</div>
+						</div>
+
+						<div class="col-md-3">
+							<label for="gmap" class="form-label">Google Map</label>
+							{{form.gmap(class="form-control", placeholder="Google map link")}}
+							<div class="invalid-feedback">
+								Zip code required.
+							</div>
+						</div>
+
+						<div class="col-6">
+							{{form.yt_link(class="list-group", placeholder="Youtube link")}}
+							<div class="invalid-feedback">
+								Description is required.
+							</div>
+						</div>
+						<div class="col-4">
+							<button type="button" onclick="addInput('yt_link','Youtube Link')" class="btn btn-outline-success btn-sm" style="margin-top: 2.2em;">Add</button>
+						</div>
+
+						<div class="col-6">
+							{{form.fb_link(class="list-group", placeholder="Facebook link")}}
+							<div class="invalid-feedback">
+								Description is required.
+							</div>
+						</div>
+						<div class="col-4">
+							<button type="button" onclick="addInput('fb_link', 'Facebook Link')" class="btn btn-outline-success btn-sm" style="margin-top: 2.2em;">Add</button>
+						</div>
+
+						<div class="col-6">
+							{{form.blog_link(class="list-group", placeholder="Blog link")}}
+							<div class="invalid-feedback">
+								Description is required.
+							</div>
+						</div>
+						<div class="col-4">
+							<button type="button" onclick="addInput('blog_link', 'Blog Link')" class="btn btn-outline-success btn-sm" style="margin-top: 2.2em;">Add</button>
+						</div>
+
+
+						<div class="col-6">
+							{{form.insta_link(class="list-group", placeholder="Instagram link")}}
+							<div class="invalid-feedback">
+								Description is required.
+							</div>
+						</div>
+						<div class="col-4">
+							<button type="button" onclick="addInput('insta_link', 'Instagram Link')" class="btn btn-outline-success btn-sm" style="margin-top: 2.2em;">Add</button>
+						</div>
+
+						
+
+					</div>
+<br>
+					<hr class="my-4">
+					<br>
+
+					<button class="btn btn-primary" type="submit">Add Note</button>
+				</form>
+			</div>
+		</div>
+	</main>
+</div>
+
+<script>
+    var fields_count = {
+    	"yt_link" : 1,
+    	"blog_link" : 1,
+    	"insta_link" : 1,
+    	"fb_link" : 1
+    };
+    var fields =1;
+    function addInput(input_id, input_label) {
+
+        if (fields_count[input_id] <= 10) {
+            document.getElementById(input_id).innerHTML += "<li><input id='"+input_id+"-"+fields_count[input_id]+"' name='"+input_id+"-"+fields_count[input_id]+"' required type='text' placeholder='"+input_label+"'></li>";
+            fields_count[input_id] += 1;
+        } else {
+            document.getElementById(input_id).innerHTML += "<br />Only 10 Links allowed.";
+            document.form.add.disabled = true;
+        }
+    }
+
+</script>
+
+<script>
+	$("#yt_link-0").attr("placeholder", "Youtube Link");
+</script>
+
+<script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+
+<script src="{{ url_for('static', filename='form-validation.js') }}"></script>
+
+{% endblock %}
