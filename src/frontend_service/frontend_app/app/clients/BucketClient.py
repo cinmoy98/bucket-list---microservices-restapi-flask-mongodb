@@ -35,34 +35,33 @@ class BucketClient:
 			return "Unknown error ! Try logging again."
 
 
-	def verify_token():
-		def wrapper(fn):
-			@wraps(fn)
-			def decorator(*args,**kwargs):
-				decoded_token = decode_token(global_var.tokens['access_token'], allow_expired=True)
-				exp_timestamp = decoded_token['exp']
-				now = datetime.now(timezone.utc)
-				target_timestamp = datetime.timestamp(now + timedelta(minutes=5))
-				if target_timestamp > exp_timestamp:
-					url = 'http://127.0.0.1:5000/api/user/refresh'
-					headers = {'Authorization': 'Bearer '+global_var.tokens["refresh_token"]}
-					response = requests.request("GET", url = url, headers=headers)
-					if response.status_code == 200:
-						new_token = response.json()
-						global_var.tokens['access_token'] = new_token
-						return fn(*args, **kwargs)
-					else:
-						return(BucketClient.check_response_status_code(response))
-				else:
-					return fn(*args, **kwargs)
-			return decorator
-		return wrapper
+	# def verify_token():
+	# 	def wrapper(fn):
+	# 		@wraps(fn)
+	# 		def decorator(*args,**kwargs):
+	# 			decoded_token = decode_token(global_var.tokens['access_token'], allow_expired=True)
+	# 			exp_timestamp = decoded_token['exp']
+	# 			now = datetime.now(timezone.utc)
+	# 			target_timestamp = datetime.timestamp(now + timedelta(minutes=5))
+	# 			if target_timestamp > exp_timestamp:
+	# 				url = 'http://127.0.0.1:5000/api/user/refresh'
+	# 				headers = {'Authorization': 'Bearer '+global_var.tokens["refresh_token"]}
+	# 				response = requests.request("GET", url = url, headers=headers)
+	# 				if response.status_code == 200:
+	# 					new_token = response.json()
+	# 					global_var.tokens['access_token'] = new_token
+	# 					return fn(*args, **kwargs)
+	# 				else:
+	# 					return(BucketClient.check_response_status_code(response))
+	# 			else:
+	# 				return fn(*args, **kwargs)
+	# 		return decorator
+	# 	return wrapper
 
 	@staticmethod
-	@verify_token()
-	def get_notes():
+	def get_notes(request):
 		url = 'http://127.0.0.3:5000/api/bucket/allNotes'
-		headers = {'Authorization': 'Bearer '+global_var.tokens["access_token"]}
+		headers = {'Authorization': 'Bearer '+request.cookies['access_token_cookie']}
 		response = requests.request("GET", url = url, headers=headers)
 		if response:
 			responsearray = json.loads(response.text)
@@ -70,8 +69,7 @@ class BucketClient:
 
 
 	@staticmethod
-	@verify_token()
-	def get_notes_by_query(quer):
+	def get_notes_by_query(quer, request):
 		url = 'http://127.0.0.3:5000/api/bucket/notesByQuery'
 
 		query ={}
@@ -82,28 +80,26 @@ class BucketClient:
 			query['country'] = quer[1]
 		if quer[2] != 'All':
 			query['city'] = quer[2]
-		print(query)
-		headers = {'Authorization': 'Bearer '+global_var.tokens["access_token"]}
+		#print(query)
+		headers = {'Authorization': 'Bearer '+request.cookies['access_token_cookie']}
 		response = requests.request("GET", url = url, headers=headers, json = query)
 		if response:
 			responsearray = json.loads(response.text)
 			return jsonify(responsearray)
 
 	@staticmethod
-	@verify_token()
-	def get_by_category(category):
+	def get_by_category(category, request):
 		url = 'http://127.0.0.3:5000/get_category/'+ category
-		headers = {'Authorization': 'Bearer '+global_var.tokens["access_token"]}
+		headers = {'Authorization': 'Bearer '+request.cookies['access_token_cookie']}
 		response = requests.request("GET", url = url, headers=headers)
 		print(response.json())
 		if response:
 			return jsonify(response.json())
 
 	@staticmethod
-	@verify_token()
-	def get_countries():
+	def get_countries(request):
 		url = 'http://127.0.0.3:5000/api/bucket/distinctCountries'
-		headers = {'Authorization': 'Bearer '+global_var.tokens["access_token"]}
+		headers = {'Authorization': 'Bearer '+request.cookies['access_token_cookie']}
 		response = requests.request("GET", url = url, headers=headers)
 		#print(responsearray)
 		if response:
@@ -111,10 +107,9 @@ class BucketClient:
 			return responsearray
 
 	@staticmethod
-	@verify_token()
-	def get_categories():
+	def get_categories(request):
 		url = 'http://127.0.0.3:5000/api/bucket/distictCat'
-		headers = {'Authorization': 'Bearer '+global_var.tokens["access_token"]}
+		headers = {'Authorization': 'Bearer '+request.cookies['access_token_cookie']}
 		response = requests.request("GET", url = url, headers=headers)
 		#print(responsearray)
 		if response:
@@ -122,18 +117,16 @@ class BucketClient:
 			return responsearray
 
 	@staticmethod
-	@verify_token()
-	def get_cities(country):
+	def get_cities(country,request):
 		url = 'http://127.0.0.3:5000/api/bucket/cities/'+country
-		headers = {'Authorization': 'Bearer '+global_var.tokens["access_token"]}
+		headers = {'Authorization': 'Bearer '+request.cookies['access_token_cookie']}
 		response = requests.request("GET", url = url, headers=headers)
 		if response:
 			responsearray=json.loads(response.text)
 			return responsearray
 
 	@staticmethod
-	@verify_token()
-	def create_note(form):
+	def create_note(form,request):
 		payload = {
 		'title' : form.title.data,
 		'description' : form.description.data,
@@ -148,7 +141,7 @@ class BucketClient:
 		}
 		print(payload)
 		url = 'http://127.0.0.3:5000/api/bucket/newNote'
-		headers = {'Authorization': 'Bearer '+global_var.tokens["access_token"]}
+		headers = {'Authorization': 'Bearer '+request.cookies['access_token_cookie']}
 		response = requests.request("POST", url = url, headers=headers, data = payload)
 		if response:
 			return jsonify("success")
