@@ -93,15 +93,22 @@ class UserClient:
 			return False
 
 	@staticmethod
-	def get_user(access_token):
-		decoded_token = decode_token(access_token, allow_expired=True)
-		return decoded_token['sub']
+	def get_user(request,access_token):
+		if request is not None:
+			if 'access_token_cookie' in request.cookies:
+				decoded_token = decode_token(request.cookies['access_token_cookie'], allow_expired=True)
+				return decoded_token['sub']
+			else:
+				return "UserName Not Found"
+		else:
+			decoded_token = decode_token(access_token, allow_expired=True)
+			return decoded_token['sub']
 
 
 	@staticmethod
-	def check():
+	def check(request):
 		url = 'http://127.0.0.2:5000/protected'
-		headers = {'Authorization': 'Bearer '+global_var.tokens["access_token"]}
+		headers = {'Authorization': 'Bearer '+request.cookies['access_token_cookie']}
 		response = requests.request("GET", url = url, headers=headers)
 		if response.status_code == 200:
 			return response
@@ -111,14 +118,12 @@ class UserClient:
 			#return(UserClient.check_response_status_code(response))
 
 	@staticmethod
-	def logout():
+	def logout(request):
 		url = "http://127.0.0.2:5000/api/user/logout"
-		headers = {'Authorization': 'Bearer '+global_var.tokens["access_token"]}
+		headers = {'Authorization': 'Bearer '+request.cookies['access_token_cookie']}
 		response = requests.request("POST", url = url, headers=headers)
 		if response:
 			if response.status_code == 200:
-				global_var.tokens['access_token'] = None
-				global_var.tokens['refresh_token'] = None
-				return response.text
+				return response
 			else:
 				return(UserClient.check_response_status_code(response))
