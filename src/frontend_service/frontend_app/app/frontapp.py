@@ -1,7 +1,7 @@
 from flask import Flask
 from flask import render_template, session, redirect, url_for, flash, request, jsonify, json, make_response
 #from flask_login import current_user, LoginManager
-from flask_bootstrap import Bootstrap
+#from flask_bootstrap import Bootstrap
 # from flask_wtf import FlaskForm
 # from wtforms import SelectField
 from app import frontend_forms
@@ -17,7 +17,7 @@ from datetime import timezone
 import requests
 from app import fapp
 
-bootstrap = Bootstrap(fapp)
+#bootstrap = Bootstrap(fapp)
 
 fapp.config['SECRET_KEY'] = "Thisisreallysecret"
 fapp.config['JWT_SECRET_KEY'] = "DoNotExpose"
