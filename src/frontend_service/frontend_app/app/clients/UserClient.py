@@ -1,11 +1,11 @@
 import requests
-from flask import redirect,url_for
-from functools import wraps
+# from flask import redirect,url_for
+# from functools import wraps
 from flask_jwt_extended import decode_token
 from datetime import datetime
-from datetime import timedelta
+# from datetime import timedelta
 from datetime import timezone
-import json
+# import json
 
 class UserClient:
 
@@ -45,7 +45,6 @@ class UserClient:
 
 	@staticmethod
 	def post_user_create(form):
-		user = False
 		payload = {
 		'username' : form.username.data,
 		'email' : form.email.data,

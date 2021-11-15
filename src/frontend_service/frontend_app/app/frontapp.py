@@ -2,8 +2,8 @@ from flask import Flask
 from flask import render_template, session, redirect, url_for, flash, request, jsonify, json, make_response
 #from flask_login import current_user, LoginManager
 from flask_bootstrap import Bootstrap
-from flask_wtf import FlaskForm
-from wtforms import SelectField
+# from flask_wtf import FlaskForm
+# from wtforms import SelectField
 from app import frontend_forms
 from app.clients.UserClient import UserClient
 from app.clients.BucketClient import BucketClient
@@ -85,7 +85,7 @@ def register():
 	if request.method == "POST":
 		username = form.username.data
 		user = UserClient.does_exist(username)
-		if user:
+		if user.status_code==200:
 			#flash('Please try another username', 'error')
 			return render_template('signup.html', form=form)
 		else:
@@ -104,14 +104,14 @@ def register():
 @fapp.route('/login', methods=['GET', 'POST'])
 def login():
 	if UserClient.check_if_logged_in(request) == True:
-		return render_template('dashboard.html', username = UserClient.get_user(request))
+		return render_template('dashboard.html', username = UserClient.get_user(request, None))
 	else:
 		form  = frontend_forms.LoginForm()
 		if request.method == "POST":
 			response,response_code = UserClient.post_login(form)
 			if response_code==200:
 				tokens = response.json()
-				resp = make_response(render_template('dashboard.html', username = UserClient.get_user(tokens['access_token'])))
+				resp = make_response(render_template('dashboard.html', username = UserClient.get_user(None,tokens['access_token'])))
 				set_access_cookies(resp, tokens['access_token'])
 				set_refresh_cookies(resp, tokens['refresh_token'])
 				return resp
