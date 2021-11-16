@@ -122,8 +122,7 @@ class UserClient:
 		url = "http://127.0.0.2:5000/api/user/logout"
 		headers = {'Authorization': 'Bearer '+request.cookies['access_token_cookie']}
 		response = requests.request("POST", url = url, headers=headers)
-		if response:
-			if response.status_code == 200:
-				return response
-			else:
-				return(UserClient.check_response_status_code(response))
+		if response.status_code == 200:
+			return response.json()
+		else:
+			return(UserClient.check_response_status_code(response))

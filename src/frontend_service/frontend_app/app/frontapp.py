@@ -7,7 +7,7 @@ from flask import render_template, session, redirect, url_for, flash, request, j
 from app import frontend_forms
 from app.clients.UserClient import UserClient
 from app.clients.BucketClient import BucketClient
-from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity ,get_jwt, set_access_cookies, set_refresh_cookies
+from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity ,get_jwt, set_access_cookies, set_refresh_cookies, unset_jwt_cookies
 import pycountry
 from functools import wraps
 from flask_jwt_extended import decode_token
@@ -61,6 +61,7 @@ jwt = JWTManager(fapp)
 @fapp.after_request
 def refresh_expiring_jwts(response):
 	try:
+		print(request.cookies['access_token_cookie'])
 		decoded_token = decode_token(request.cookies['access_token_cookie'], allow_expired=True)
 		exp_timestamp = decoded_token['exp']
 		now = datetime.now(timezone.utc)
@@ -76,6 +77,7 @@ def refresh_expiring_jwts(response):
 				print("token refreshed")
 		return response
 	except:
+		print("Except executed")
 		return response
 
 
@@ -111,6 +113,7 @@ def login():
 			response,response_code = UserClient.post_login(form)
 			if response_code==200:
 				tokens = response.json()
+				print(tokens)
 				resp = make_response(render_template('dashboard.html', username = UserClient.get_user(None,tokens['access_token'])))
 				set_access_cookies(resp, tokens['access_token'])
 				set_refresh_cookies(resp, tokens['refresh_token'])
@@ -130,8 +133,10 @@ def check():
 
 @fapp.route('/logout', methods=['POST', 'GET'])
 def logout():
-	response = UserClient.logout()
+	response = UserClient.logout(request)
 	if response:
+		response = make_response(jsonify(response))
+		unset_jwt_cookies(response, domain=None)
 		return response
 	else:
 		return "Something went wrong..."
