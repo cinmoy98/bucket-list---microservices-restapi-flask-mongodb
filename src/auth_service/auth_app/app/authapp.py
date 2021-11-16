@@ -1,6 +1,6 @@
-from flask import Flask, make_response, request, jsonify, json
+from flask import  make_response, request, jsonify
 from passlib.hash import sha256_crypt
-from UserModel import User, Auth
+from app.UserModel.UserModel import User, Auth
 import datetime
 from flask_pymongo import PyMongo
 from flask_jwt_extended import (create_access_token, create_refresh_token, jwt_required, get_jwt_identity, get_jwt, 
@@ -9,23 +9,23 @@ from flask_jwt_extended import JWTManager
 from bson import ObjectId
 import json
 
-app = Flask(__name__)
+from app import uapp
 
-app.config["MONGO_URI"] = "mongodb://localhost:27017/bucket_list"
-app.config['SECRET_KEY'] = "Thisisreallysecret"
-app.config['JWT_SECRET_KEY'] = "DoNotExpose"
+uapp.config["MONGO_URI"] = "mongodb://localhost:27017/bucket_list"
+uapp.config['SECRET_KEY'] = "Thisisreallysecret"
+uapp.config['JWT_SECRET_KEY'] = "DoNotExpose"
 #app.config['JWT_COOKIE_SECURE'] = False
 #app.config['JWT_TOKEN_LOCATION'] = ["cookies"]
-app.config['JWT_COOKIE_CSRF_PROTECT'] = False
+uapp.config['JWT_COOKIE_CSRF_PROTECT'] = False
 
 #app.config['JWT_BLACKLIST_ENABLED'] = True
 #app.config['JWT_BLACKLIST_TOKEN_CHECKS'] = ['access', 'refresh']
-mongo = PyMongo(app)
-jwt = JWTManager(app)
+mongo = PyMongo(uapp)
+jwt = JWTManager(uapp)
 
 
 
-@app.route('/api/user/<string:username>/exists',methods=['GET'])
+@uapp.route('/api/user/<string:username>/exists',methods=['GET'])
 def get_username(username):
 	user = User(mongo)
 	response = user.get_username(username, mongo)
@@ -38,7 +38,7 @@ def get_username(username):
 
 
 
-@app.route('/api/user/create', methods=['POST'])
+@uapp.route('/api/user/create', methods=['POST'])
 def post_register():
 	user_data = {
 	'username' : request.form['username'],
@@ -57,13 +57,13 @@ def post_register():
 
 
 
-@app.route('/api/user/login', methods=["POST"])
+@uapp.route('/api/user/login', methods=["POST"])
 def post_login():
 	username = request.form['username']
 	user = mongo.db.user.find_one({'username' : username})
 	if user:
 		if sha256_crypt.verify(str(request.form['password']), user['password']):
-			access_expires = datetime.timedelta(minutes=30)
+			access_expires = datetime.timedelta(minutes=4)
 			refresh_expires = datetime.timedelta(minutes=60)
 			access_token = create_access_token(identity = username , fresh = True, expires_delta=access_expires)
 			refresh_token = create_refresh_token(identity = username, expires_delta = refresh_expires)
@@ -89,7 +89,7 @@ def check_if_token_revoked(jwt_header, jwt_payload):
 
 
 
-@app.route('/api/user/logout',methods=['POST'])
+@uapp.route('/api/user/logout',methods=['POST'])
 @jwt_required()
 def logout():
 	jti = get_jwt()['jti']
@@ -104,7 +104,7 @@ def logout():
 
 
 
-@app.route('/api/user/refresh', methods=['GET'])
+@uapp.route('/api/user/refresh', methods=['GET'])
 @jwt_required(refresh=True)
 def refresh():
 	expires = datetime.timedelta(minutes=10)
@@ -113,19 +113,17 @@ def refresh():
 
 
 
-@app.route('/protected',methods=['GET'])
+@uapp.route('/protected',methods=['GET'])
 @jwt_required()
 def protected():
 	return jsonify("protected")
 
 
 
-@app.route('/test',methods=['GET'])
+@uapp.route('/test',methods=['GET'])
 def test():
 	user = mongo.db.user.find_one({'username' : 'cinmoy98'})
 	print(user['password'])
 	return "done"
 
 
-if __name__ == '__main__':
-	app.run(host = '127.0.0.2', port=5000, debug=True)
