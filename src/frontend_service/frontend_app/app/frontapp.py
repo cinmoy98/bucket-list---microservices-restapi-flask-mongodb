@@ -129,7 +129,7 @@ def check():
 	# print("response checking in fapp")
 	# print (response.status_code)
 	# return response.json()
-	return render_template('base.html', logged_in = False)
+	return render_template('bucket.html')
 
 @fapp.route('/logout', methods=['POST', 'GET'])
 def logout():
@@ -145,7 +145,7 @@ def logout():
 def create_note():
 	countries = list(pycountry.countries)
 	form = frontend_forms.NewNote()
-	categories = BucketClient.get_categories()
+	categories = BucketClient.get_categories(request)
 	form.category.choices = [(category, category) for category in categories]
 	form.country.choices = [(country.name, country.name) for country in countries]
 	if request.method == "POST":
@@ -155,16 +155,16 @@ def create_note():
 @fapp.route('/dashboard', methods=['GET', 'POST'])
 def dashboard():
 	form = frontend_forms.SelectForm()
-	countries = BucketClient.get_countries()
-	categories = BucketClient.get_categories()
+	countries = BucketClient.get_countries(request)
+	categories = BucketClient.get_categories(request)
 	form.country.choices =[(country, country) for country in countries]
 	form.country.choices.insert(0,('All','All'))
 	form.city.choices.insert(0,('All','All'))
-	buckets = BucketClient.get_notes()
+	buckets = BucketClient.get_notes(request)
 	buckets = buckets.get_json()
 
     #categories = list(BucketClient.get)
-	return render_template('bucket_board.html', form = form, buckets = buckets, categories=categories)
+	return render_template('bucket.html', form = form, buckets = buckets, categories=categories)
 
 @fapp.route('/city/<country>')
 def get_city(country):
@@ -172,7 +172,7 @@ def get_city(country):
 		city_not_selected=[]
 		city_not_selected = [{'cityname':'Select Country', 'cityvalue':'All'}]
 		return jsonify({'cities' : city_not_selected})
-	cities = BucketClient.get_cities(country)
+	cities = BucketClient.get_cities(country,request)
 	cityArray = []
 
 	for city in cities:
@@ -187,7 +187,7 @@ def get_city(country):
 def user_buckets():
 	quer = request.json
 	print(quer)
-	bucket = BucketClient.get_notes_by_query(quer)
+	bucket = BucketClient.get_notes_by_query(quer, request)
 	bucket = bucket.get_json()
 	#bucket = json.dumps(bucket)
 	# buckets = {

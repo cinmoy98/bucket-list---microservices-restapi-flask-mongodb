@@ -1,6 +1,11 @@
 {% extends "base.html" %}
 {% block title %}Dashboard{% endblock %}
+{% block username %}<h6 style="color: aliceblue;padding-right: 5px;">{{ username }}</h6>{% endblock %}
 {% block content %}
-<br><br><br><br><br><br><br><br><br><br>
-<h1 align="center">Wellcome {{ username }}</h1>
+<div style="position: relative;">
+<img src="{{url_for('static', filename='images/1991562_Freepik.jpg')}}" width="1920px" height="1080px">
+<!-- <h1 style="position: absolute; top: 900px; left: 400px;" align="center">Wellcome {{ username }}</h1> -->
+<a href="{{url_for('dashboard')}}" style="position: absolute; text-decoration: none;top: 68%; left: 45%;"><button type="button" class="btn btn-outline-success">Buckets</button></a>
+<a href="{{url_for('create_note')}}" style="position: absolute; text-decoration: none;top: 68%; left: 52%;"><button type="button" class="btn btn-outline-success">Add New</button></a>
+</div>
 {% endblock %}
