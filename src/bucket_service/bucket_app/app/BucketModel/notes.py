@@ -1,10 +1,12 @@
 import uuid
 import datetime
 from bson.objectid import ObjectId
-
+import random
+import string
 class Note(object):
 	def __init__(self,uid ,req , _id = None):
 		self.uid = uid
+		self.note_id = ''.join(random.choices(string.ascii_uppercase + string.digits, k = 6))
 		self.title = req['title']
 		self.description = req['description']
 		self.category = req.getlist('category')
@@ -27,6 +29,7 @@ class Note(object):
 
 	def json(self, up):
 		json_ob =  {
+			'note_id' : self.note_id,
 			'uid' : self.uid,
 			'description' : self.description,
 			'category' : self.category,
@@ -47,6 +50,8 @@ class Note(object):
 	def get_output(notes):
 		extract_output = [{
 				'uid' : user['uid'],
+				# 'id' : user['_id'],
+				'note_id' : user['note_id'],
 				'description' : user['description'],
 				'category' : user['category'],
 				'country': user['country'],

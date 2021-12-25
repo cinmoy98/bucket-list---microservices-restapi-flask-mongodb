@@ -149,7 +149,7 @@ def create_note():
 	form.category.choices = [(category, category) for category in categories]
 	form.country.choices = [(country.name, country.name) for country in countries]
 	if request.method == "POST":
-		new_note = BucketClient.create_note(form)
+		new_note = BucketClient.create_note(form, request)
 	return render_template('new_nt.html', form = form)
 
 @fapp.route('/dashboard', methods=['GET', 'POST'])
@@ -162,6 +162,7 @@ def dashboard():
 	form.city.choices.insert(0,('All','All'))
 	buckets = BucketClient.get_notes(request)
 	buckets = buckets.get_json()
+	print(buckets)
 
     #categories = list(BucketClient.get)
 	return render_template('bucket.html', form = form, buckets = buckets, categories=categories)

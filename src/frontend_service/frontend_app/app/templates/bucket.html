@@ -1,6 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
+{% extends "base.html" %}
+{% block title %}Bucket Board{% endblock %}
+{% block head %}
 	<title>Pacific - Free Bootstrap 4 Template by Colorlib</title>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -19,12 +19,12 @@
 
 	<link rel="stylesheet" href="{{ url_for('static', filename='bucket/css/bootstrap-datepicker.css') }}">
 	<link rel="stylesheet" href="{{ url_for('static', filename='bucket/css/jquery.timepicker.css') }}">
-
+	<script src="https://kit.fontawesome.com/yourcode.js" crossorigin="anonymous"></script>
 	
 	<link rel="stylesheet" href="{{ url_for('static', filename='bucket/css/flaticon.css') }}">
 	<link rel="stylesheet" href="{{ url_for('static', filename='bucket/css/style.css') }}">
-</head>
-<body>
+	{% endblock %}
+	{% block content %}
 
 	<!-- <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
 		Launch static backdrop modal
@@ -49,9 +49,18 @@
 		</div>
 	  </div> -->
 		
-		
+	  <form method="POST" onsubmit="return showdata()">
+		{{form.country}}
+		{{form.city}}
+		<br>
+		{% for category in categories %}
+			<input type="checkbox" id="category" name="category" value={{category}}>
+			<label for="category">{{category}}</label><br>
+		{% endfor %}
+		<input type="submit">
+		</form>
 
-
+		<div id="board">
 		<section class="ftco-section">
 			<div class="container">
 				<div class="row justify-content-center pb-4">
@@ -65,21 +74,21 @@
 					<div class="col-md-4 ftco-animate">
 						<div class="project-wrap">
 							<a href="#" class="img" style="background-image: url({{ url_for('static', filename='bucket/images/destination-1.jpg') }});">
-								<span class="price">{{ bucket['category'] }}</span>
+								<span class="price">{% for category in bucket['category'] %} {{ category }}   {% endfor %}</span>
 							</a>
 							<div class="text p-4">
 								<span class="days">{{bucket['title']}}</span>
-								<h3><a href="#" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Description</a></h3>
+								<h3><a href="#" data-bs-toggle="modal" data-bs-target="#staticBackdrop{{bucket['note_id']}}">Description</a></h3>
 								<p class="location"><span class="fa fa-map-marker"></span> {{ bucket['city'] }}, {{ bucket['country'] }}</p>
 								<ul>
-									<li><span class="flaticon-paragliding"></span>2</li>
-									<li><span class="flaticon-route"></span>3</li>
-									<li><span class="flaticon-map"></span>Near Mountain</li>
+									<li><span class="flaticon-paragliding"></span></li>
+									<li><span class="flaticon-route"></span></li>
+									<li><span class="flaticon-map"></span></li>
 								</ul>
 							</div>
 						</div>
 					</div>
-					<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+					<div class="modal fade" id="staticBackdrop{{bucket['note_id']}}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
 						<div class="modal-dialog .modal-dialog-centered">
 						  <div class="modal-content">
 							<div class="modal-header">
@@ -87,123 +96,51 @@
 							  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 							</div>
 							<div class="modal-body">
-							  ...
+								<div class="project-wrap">
+									<a href="#" class="img" style="background-image: url({{ url_for('static', filename='bucket/images/destination-1.jpg') }});">
+										<span class="price">{% for category in bucket['category'] %} {{ category }}   {% endfor %}</span>
+									</a>
+									<div class="text p-4">
+										<span class="days">{{bucket['title']}}</span>
+										<h3><a href="#" data-bs-toggle="modal" data-bs-target="#staticBackdrop{{bucket['note_id']}}">Description</a></h3>
+										<p class="location"><span class="fa fa-map-marker"></span> {{ bucket['city'] }}, {{ bucket['country'] }}</p>
+										<h5>Youtube</h5>
+										<ul>
+											{% for link in bucket['yt_link'] %}
+											<li><a href="{{link}}">{{link}}</a></li>
+											{% endfor %}
+										</ul>
+										<h5>Facebook</h5>
+										<ul>
+											{% for link in bucket['fb_link'] %}
+											<li><a href="{{link}}">{{link}}</a></li>
+											{% endfor %}
+										</ul>
+										<h5>Blogs</h5>
+										<ul>
+											{% for link in bucket['blog_link'] %}
+											<li><a href="{{link}}">{{link}}</a></li>
+											{% endfor %}
+										</ul>
+										<h5>Instagram</h5>
+										<ul>
+											{% for link in bucket['insta_link'] %}
+											<li><a href="{{link}}">{{link}}</a></li>
+											{% endfor %}
+										</ul>
+
+									</div>
+								</div>
 							</div>
 							<div class="modal-footer">
 							  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-							  <button type="button" class="btn btn-primary">Understood</button>
 							</div>
 						  </div>
 						</div>
 					  </div>
 					{% endfor %}
-					<div class="col-md-4 ftco-animate">
-						<div class="project-wrap">
-							<a href="#" class="img" style="background-image: url({{ url_for('static', filename='bucket/images/destination-1.jpg') }});">
-								<span class="price">Food</span>
-							</a>
-							<div class="text p-4">
-								<span class="days">Title</span>
-								<h3><a href="#">Description</a></h3>
-								<p class="location"><span class="fa fa-map-marker"></span> City, Country</p>
-								<ul>
-									<li><span class="flaticon-paragliding"></span>2</li>
-									<li><span class="flaticon-route"></span>3</li>
-									<li><span class="flaticon-map"></span>Near Mountain</li>
-								</ul>
-							</div>
-						</div>
-					</div>
-					<div class="col-md-4 ftco-animate">
-						<div class="project-wrap">
-							<a href="#" class="img" style="background-image: url(images/destination-2.jpg);">
-								<span class="price">$550/person</span>
-							</a>
-							<div class="text p-4">
-								<span class="days">10 Days Tour</span>
-								<h3><a href="#">Banaue Rice Terraces</a></h3>
-								<p class="location"><span class="fa fa-map-marker"></span> Banaue, Ifugao, Philippines</p>
-								<ul>
-									<li><span class="flaticon-shower"></span>2</li>
-									<li><span class="flaticon-king-size"></span>3</li>
-									<li><span class="flaticon-sun-umbrella"></span>Near Beach</li>
-								</ul>
-							</div>
-						</div>
-					</div>
-					<div class="col-md-4 ftco-animate">
-						<div class="project-wrap">
-							<a href="#" class="img" style="background-image: url(images/destination-3.jpg);">
-								<span class="price">$550/person</span>
-							</a>
-							<div class="text p-4">
-								<span class="days">7 Days Tour</span>
-								<h3><a href="#">Banaue Rice Terraces</a></h3>
-								<p class="location"><span class="fa fa-map-marker"></span> Banaue, Ifugao, Philippines</p>
-								<ul>
-									<li><span class="flaticon-shower"></span>2</li>
-									<li><span class="flaticon-king-size"></span>3</li>
-									<li><span class="flaticon-sun-umbrella"></span>Near Beach</li>
-								</ul>
-							</div>
-						</div>
-					</div>
-
-					<div class="col-md-4 ftco-animate">
-						<div class="project-wrap">
-							<a href="#" class="img" style="background-image: url(images/destination-4.jpg);">
-								<span class="price">$550/person</span>
-							</a>
-							<div class="text p-4">
-								<span class="days">8 Days Tour</span>
-								<h3><a href="#">Banaue Rice Terraces</a></h3>
-								<p class="location"><span class="fa fa-map-marker"></span> Banaue, Ifugao, Philippines</p>
-								<ul>
-									<li><span class="flaticon-shower"></span>2</li>
-									<li><span class="flaticon-king-size"></span>3</li>
-									<li><span class="flaticon-sun-umbrella"></span>Near Beach</li>
-								</ul>
-							</div>
-						</div>
-					</div>
-					<div class="col-md-4 ftco-animate">
-						<div class="project-wrap">
-							<a href="#" class="img" style="background-image: url(images/destination-5.jpg);">
-								<span class="price">$550/person</span>
-							</a>
-							<div class="text p-4">
-								<span class="days">10 Days Tour</span>
-								<h3><a href="#">Banaue Rice Terraces</a></h3>
-								<p class="location"><span class="fa fa-map-marker"></span> Banaue, Ifugao, Philippines</p>
-								<ul>
-									<li><span class="flaticon-shower"></span>2</li>
-									<li><span class="flaticon-king-size"></span>3</li>
-									<li><span class="flaticon-sun-umbrella"></span>Near Beach</li>
-								</ul>
-							</div>
-						</div>
-					</div>
-					<div class="col-md-4 ftco-animate">
-						<div class="project-wrap">
-							<a href="#" class="img" style="background-image: url(images/destination-6.jpg);">
-								<span class="price">$550/person</span>
-							</a>
-							<div class="text p-4">
-								<span class="days">7 Days Tour</span>
-								<h3><a href="#">Banaue Rice Terraces</a></h3>
-								<p class="location"><span class="fa fa-map-marker"></span> Banaue, Ifugao, Philippines</p>
-								<ul>
-									<li><span class="flaticon-shower"></span>2</li>
-									<li><span class="flaticon-king-size"></span>3</li>
-									<li><span class="flaticon-sun-umbrella"></span>Near Beach</li>
-								</ul>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
 		</section>
-
+	</div>
 		
 
 		
@@ -230,5 +167,77 @@
 			<script src="{{ url_for('static', filename='bucket/js/google-map.js') }}"></script>
 			<script src="{{ url_for('static', filename='bucket/js/main.js') }}"></script>
 			
-		</body>
-		</html>
+
+			<script>
+				let country_select = document.getElementById('country');
+				let city_select = document.getElementById('city');
+				let dynamic_div = document.getElementById('board');
+				// let dynamic_checkbox = document.querySelectorAll('#category')
+				let to_filter_chk = 'All'
+				let to_filter_cn = country_select.value;
+				let to_filter_ct = city_select.value;
+				let to_filter = [to_filter_chk,to_filter_cn,to_filter_ct];
+			
+				country_select.onchange = function() {
+			
+					country = country_select.value;
+			
+					fetch('/city/' + country).then(function(response) {
+						response.json().then(function(data) {
+							let optionHTML = '';
+			
+							for (let city of data.cities) {
+								optionHTML += '<option value="' + city.cityvalue +'">' + city.cityname + '</option>';
+							}
+							city_select.innerHTML = optionHTML;
+						})
+					})
+					to_filter_cn = country_select.value;
+					to_filter = [to_filter_chk,to_filter_cn,to_filter_ct];
+					// dynamic_div.innerHTML = to_filter;
+				}
+			
+				// country_select.onchange = function(){
+					
+				// }
+			
+				city_select.onchange = function(){
+					to_filter_ct = city_select.value;
+					to_filter = [to_filter_chk,to_filter_cn,to_filter_ct];
+					// dynamic_div.innerHTML = to_filter;
+				}
+				
+				$("input[type='checkbox']").change(function(){
+					console.log("checkboxes checked");
+					var checkboxes = Array.from(document.querySelectorAll("input[type=checkbox][name=category]:checked")).map(e => e.value);
+					if (checkboxes.length == 0){
+						to_filter_chk = "All";
+					}
+					else {
+						to_filter_chk = checkboxes;
+					}
+					to_filter = [to_filter_chk,to_filter_cn,to_filter_ct];
+					// dynamic_div.innerHTML = to_filter;
+				});
+			
+					
+			
+				function showdata(){
+					//alert(to_filter);
+					fetch('/user_buckets', { headers: {
+				  'Content-Type': 'application/json'}, method: 'POST', body: JSON.stringify(to_filter) }).then(function(response){
+						response.json().then(function(data){
+							// var buckets = JSON.stringify(data, null, 4);
+							for (var bucket in data)
+							{
+								dynamic_div.innerHTML += ""
+								//dynamic_div.innerHTML += "<div class='col-md-6'><div class='row g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative'><div class='col p-4 d-flex flex-column position-static'><strong class='d-inline-block mb-2 text-primary'>"+ data[bucket].category+"</strong><h3 class='mb-0'>"+data[bucket].title+"</h3><div class='mb-1 text-muted'>"+data[bucket].country+"</div><div class='mb-1 text-muted'>"+data[bucket].city+"</div><p class='card-text mb-auto'>Youtube Link <br> "+data[bucket].yt_link+"</p><p class='card-text mb-auto'>Facebook Link <br> "+data[bucket].fb_link+"</p><p class='card-text mb-auto'>Blog Link <br> "+data[bucket].blog_link+"</p><p class='card-text mb-auto'>Instagram Link <br> "+data[bucket].insta_link+"</p><a href='#' class='stretched-link'>Google Map : "+data[bucket].gmap+"</a></div><div class='col-auto d-none d-lg-block'><svg class='bd-placeholder-img' width='200' height='250' xmlns=''http://www.w3.org/2000/svg' role='img' aria-label='Placeholder: Thumbnail' preserveAspectRatio='xMidYMid slice' focusable='false'><title>Placeholder</title><rect width='100%' height='100%' fill='#55595c'></rect><text x='50%' y='50%' fill='#eceeef' dy='.3em'>Thumbnail</text></svg></div></div></div>"
+							}
+						})
+					})
+					return false;
+				}
+			
+			</script>
+
+{% endblock %}
