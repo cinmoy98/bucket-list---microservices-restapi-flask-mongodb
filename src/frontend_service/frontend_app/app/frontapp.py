@@ -190,6 +190,7 @@ def user_buckets():
 	print(quer)
 	bucket = BucketClient.get_notes_by_query(quer, request)
 	bucket = bucket.get_json()
+	print(bucket)
 	#bucket = json.dumps(bucket)
 	# buckets = {
 	# "country":['cinmoy', 'gourob', 'ayon'],

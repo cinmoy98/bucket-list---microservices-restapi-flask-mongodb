@@ -49,17 +49,36 @@
 		</div>
 	  </div> -->
 		
-	  <form method="POST" onsubmit="return showdata()">
-		{{form.country}}
-		{{form.city}}
+	 <!-- <div class="col-md-6 d-flex" style="margin-top: 100px;">  -->
+		<div class="row g-5" style="margin-top: 20px;">
+		<div class="col-md-7 col-lg-6" style="margin-left: 650px;">
+		<form method="POST" onsubmit="return showdata()">
+			<div class="row g-3">
+			
+				<div class="col-md-5">
+			<label for="country" class="form-label">Country</label>
+				{{form.country(class="form-select")}}
+		</div>
+
+		<div class="col-md-4">
+			<label for="country" class="form-label">City</label>
+			{{form.city(class="form-select")}}
+		</div>
 		<br>
+		<div class="col-md-5">
 		{% for category in categories %}
 			<input type="checkbox" id="category" name="category" value={{category}}>
 			<label for="category">{{category}}</label><br>
 		{% endfor %}
-		<input type="submit">
-		</form>
-
+	</div>
+	<div>
+		<input type="submit" value="Filter">
+	</div>
+	</div>
+	</form>
+	</div>
+	</div>
+<!-- </div> -->
 		<div id="board">
 		<section class="ftco-section">
 			<div class="container">
@@ -69,7 +88,7 @@
 						<h2 class="mb-4">Tour Destinations and Details</h2>
 					</div>
 				</div>
-				<div class="row">
+				<div class="row" id="boardr">
 					{% for bucket in buckets %}
 					<div class="col-md-4 ftco-animate">
 						<div class="project-wrap">
@@ -139,6 +158,8 @@
 						</div>
 					  </div>
 					{% endfor %}
+					</div>
+					</div>
 		</section>
 	</div>
 		
@@ -171,7 +192,7 @@
 			<script>
 				let country_select = document.getElementById('country');
 				let city_select = document.getElementById('city');
-				let dynamic_div = document.getElementById('board');
+				let dynamic_div = document.getElementById('boardr');
 				// let dynamic_checkbox = document.querySelectorAll('#category')
 				let to_filter_chk = 'All'
 				let to_filter_cn = country_select.value;
@@ -228,10 +249,11 @@
 				  'Content-Type': 'application/json'}, method: 'POST', body: JSON.stringify(to_filter) }).then(function(response){
 						response.json().then(function(data){
 							// var buckets = JSON.stringify(data, null, 4);
+							console.log(data[0].yt_link);
 							for (var bucket in data)
 							{
-								dynamic_div.innerHTML += ""
-								//dynamic_div.innerHTML += "<div class='col-md-6'><div class='row g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative'><div class='col p-4 d-flex flex-column position-static'><strong class='d-inline-block mb-2 text-primary'>"+ data[bucket].category+"</strong><h3 class='mb-0'>"+data[bucket].title+"</h3><div class='mb-1 text-muted'>"+data[bucket].country+"</div><div class='mb-1 text-muted'>"+data[bucket].city+"</div><p class='card-text mb-auto'>Youtube Link <br> "+data[bucket].yt_link+"</p><p class='card-text mb-auto'>Facebook Link <br> "+data[bucket].fb_link+"</p><p class='card-text mb-auto'>Blog Link <br> "+data[bucket].blog_link+"</p><p class='card-text mb-auto'>Instagram Link <br> "+data[bucket].insta_link+"</p><a href='#' class='stretched-link'>Google Map : "+data[bucket].gmap+"</a></div><div class='col-auto d-none d-lg-block'><svg class='bd-placeholder-img' width='200' height='250' xmlns=''http://www.w3.org/2000/svg' role='img' aria-label='Placeholder: Thumbnail' preserveAspectRatio='xMidYMid slice' focusable='false'><title>Placeholder</title><rect width='100%' height='100%' fill='#55595c'></rect><text x='50%' y='50%' fill='#eceeef' dy='.3em'>Thumbnail</text></svg></div></div></div>"
+								dynamic_div.innerHTML = "cinmoy"
+								//dynamic_div.innerHTML = "<div class='col-md-4 ftco-animate'><div class='project-wrap'><a href='#'' class='img' style='background-image: url({{ url_for('static', filename='bucket/images/destination-1.jpg')}});'><span class='price'>" + data[bucket].category + "</span></a><div class='text p-4'><span class='days'>"+data[bucket].description + " </span><h3>Description</h3><p class='location'><span class='fa fa-map-marker'></span>" +data[bucket].country + ", " + data[bucket].city + "</p><ul><li><span class='flaticon-paragliding'></span></li><li><span class='flaticon-route'></span></li><li><span class='flaticon-map'></span></li></ul></div></div></div>";
 							}
 						})
 					})
