@@ -3,6 +3,7 @@
 {% block head %}
 	<title>Pacific - Free Bootstrap 4 Template by Colorlib</title>
 	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
@@ -249,11 +250,14 @@
 				  'Content-Type': 'application/json'}, method: 'POST', body: JSON.stringify(to_filter) }).then(function(response){
 						response.json().then(function(data){
 							// var buckets = JSON.stringify(data, null, 4);
-							console.log(data[0].yt_link);
+							//console.log(data[0].yt_link);
 							for (var bucket in data)
 							{
-								dynamic_div.innerHTML = "cinmoy"
-								//dynamic_div.innerHTML = "<div class='col-md-4 ftco-animate'><div class='project-wrap'><a href='#'' class='img' style='background-image: url({{ url_for('static', filename='bucket/images/destination-1.jpg')}});'><span class='price'>" + data[bucket].category + "</span></a><div class='text p-4'><span class='days'>"+data[bucket].description + " </span><h3>Description</h3><p class='location'><span class='fa fa-map-marker'></span>" +data[bucket].country + ", " + data[bucket].city + "</p><ul><li><span class='flaticon-paragliding'></span></li><li><span class='flaticon-route'></span></li><li><span class='flaticon-map'></span></li></ul></div></div></div>";
+								console.log(data[bucket]);
+								//dynamic_div.innerHTML = "cinmoy"
+								//dynamic_div.innerHTML += "<div>Cinmoy das  Shubra</div>";
+								//dynamic_div.innerHTML = "<section class='ftco-section'><div class='container'><div class='row justify-content-center pb-4'><div class=col-md-12 heading-section text-center ftco-animate'><span class='subheading'>Buckets</span><h2 class='mb-4'>Tour Destinations and Details</h2></div></div><div class='row'><div class='col-md-4 ftco-animate'><div class='project-wrap'><a href='#'' class='img' style='background-image: url({{ url_for('static', filename='bucket/images/destination-1.jpg')}});'><span class='price'>category</span></a><div class='text p-4'><span class='days'>description</span><h3>Description</h3><p class='location'><span class='fa fa-map-marker'></span>Country, City</p><ul><li><span class='flaticon-paragliding'></span></li><li><span class='flaticon-route'></span></li><li><span class='flaticon-map'></span></li></ul></div></div></div></div></div></section>";
+								dynamic_div.innerHTML += "<div class='col-md-4 ftco-animate'><div class='project-wrap'><a href='#'' class='img' style='background-image: url({{ url_for('static', filename='bucket/images/destination-1.jpg')}});'><span class='price'>" + data[bucket].category + "</span></a><div class='text p-4'><span class='days'>"+data[bucket].description + " </span><h3>Description</h3><p class='location'><span class='fa fa-map-marker'></span>" +data[bucket].country + ", " + data[bucket].city + "</p><ul><li><span class='flaticon-paragliding'></span></li><li><span class='flaticon-route'></span></li><li><span class='flaticon-map'></span></li></ul></div></div></div>";
 							}
 						})
 					})

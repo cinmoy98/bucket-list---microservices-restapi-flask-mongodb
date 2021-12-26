@@ -143,6 +143,7 @@ def logout():
 
 @fapp.route('/create_note', methods=['GET', 'POST'])
 def create_note():
+	username = "username"
 	countries = list(pycountry.countries)
 	form = frontend_forms.NewNote()
 	categories = BucketClient.get_categories(request)
@@ -150,7 +151,7 @@ def create_note():
 	form.country.choices = [(country.name, country.name) for country in countries]
 	if request.method == "POST":
 		new_note = BucketClient.create_note(form, request)
-	return render_template('new_nt.html', form = form)
+	return render_template('new_nt.html', form = form, username=username)
 
 @fapp.route('/dashboard', methods=['GET', 'POST'])
 def dashboard():
@@ -166,6 +167,21 @@ def dashboard():
 
     #categories = list(BucketClient.get)
 	return render_template('bucket.html', form = form, buckets = buckets, categories=categories)
+
+@fapp.route('/dashb', methods=['GET', 'POST'])
+def dashboard_css():
+	form = frontend_forms.SelectForm()
+	countries = BucketClient.get_countries(request)
+	categories = BucketClient.get_categories(request)
+	form.country.choices =[(country, country) for country in countries]
+	form.country.choices.insert(0,('All','All'))
+	form.city.choices.insert(0,('All','All'))
+	buckets = BucketClient.get_notes(request)
+	buckets = buckets.get_json()
+	print(buckets)
+
+    #categories = list(BucketClient.get)
+	return render_template('bucket_board.html', form = form, buckets = buckets, categories=categories)
 
 @fapp.route('/city/<country>')
 def get_city(country):

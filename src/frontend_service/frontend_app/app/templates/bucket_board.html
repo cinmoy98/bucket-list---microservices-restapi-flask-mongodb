@@ -11,7 +11,7 @@
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 </head>
 <body>
-<form method="POST" onsubmit="return showdata()">
+<!-- <form method="POST" onsubmit="return showdata()">
 {{form.country}}
 {{form.city}}
 <br>
@@ -20,7 +20,36 @@
 	<label for="category">{{category}}</label><br>
 {% endfor %}
 <input type="submit">
+</form> -->
+
+<div class="row g-5" style="margin-top: 20px;">
+	<div class="col-md-7 col-lg-6" style="margin-left: 650px;">
+	<form method="POST" onsubmit="return showdata()">
+		<div class="row g-3">
+		
+			<div class="col-md-5">
+		<label for="country" class="form-label">Country</label>
+			{{form.country(class="form-select")}}
+	</div>
+
+	<div class="col-md-4">
+		<label for="city" class="form-label">City</label>
+		{{form.city(class="form-select")}}
+	</div>
+	<br>
+	<div class="col-md-5">
+	{% for category in categories %}
+		<input type="checkbox" id="category" name="category" value={{category}}>
+		<label for="category">{{category}}</label><br>
+	{% endfor %}
+</div>
+<div>
+	<input type="submit" value="Filter">
+</div>
+</div>
 </form>
+</div>
+</div>
 
 <div id="board">
 {% for bucket in buckets %}

@@ -29,7 +29,7 @@
         <a class="navbar-brand" href="#">Your Travel Bucket</a>
         <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
           <li class="nav-item active">
-            <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+            <a class="nav-link" href="{{url_for('login')}}">Home <span class="sr-only">(current)</span></a>
           </li>
           {% if username or buckets %}
           <li class="nav-item">
@@ -55,13 +55,13 @@
           </li>
           {% endif %}
           
-          {% if not username  or not buckets%}
+          {% if not buckets%}
           <li class="nav-item">
             <a class="nav-link" href="{{url_for('register')}}">Register</a>
           </li>
           {% endif %}
 
-          {% if not username  or not buckets%}
+          {% if not buckets%}
           <li class="nav-item">
             <a class="nav-link" href="{{url_for('login')}}">Login</a>
           </li>
