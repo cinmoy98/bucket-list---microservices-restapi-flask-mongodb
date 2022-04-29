@@ -19,10 +19,6 @@ token-based authentication will be introduced to ensure greater security. uWSGI 
 balancing, multiprocessing, and multithreading. As frontend, bucket, authentication, database - these three services
 are docker containerized and independent of each other, if any service goes down other two will still be running.I developed this app to learn latest cutting edge technologies. One can refer this repo to learn backend and system design from scratch.
 
-It remembers which directories you use most frequently, so you can "jump" to
-them in just a few keystrokes.<br />
-zoxide works on all major shells.
-
 [Getting started](#getting-started) •
 [Installation](#installation) •
 [Configuration](#configuration) •
