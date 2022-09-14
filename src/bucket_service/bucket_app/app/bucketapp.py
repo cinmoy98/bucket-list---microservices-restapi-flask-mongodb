@@ -141,7 +141,6 @@ def get_countries():
 @bapp.route('/update_note/<note_id>',methods=['POST'])
 def update_note(note_id):
 	uid = request.form['userid']
-	title = request.form['title']
 	description = request.form['description']
 	category = request.form.getlist('category[]')
 	country = request.form['country']
@@ -152,7 +151,7 @@ def update_note(note_id):
 	insta_link = request.form.getlist('instagram[]')
 	gmap = request.form['gmap']
 
-	update_note = Note(uid, title, description, category, country, city, yt_link, fb_link, blog_link, insta_link,gmap, note_id)
+	update_note = Note(uid, description, category, country, city, yt_link, fb_link, blog_link, insta_link,gmap, note_id)
 	update_note.update_it(note_id, mongo)
 	return "Updated !"
 

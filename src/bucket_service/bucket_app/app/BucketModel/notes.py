@@ -24,7 +24,7 @@ class Note(object):
 		mongo.db.buckets.insert(self.json(up=False))
 
 	def update_it(self,note_id, mongo):
-		mongo.db.test.update({'_id' : note_id}, {"$set": self.json(up=True)})
+		mongo.db.test.update({'note_id' : note_id}, {"$set": self.json(up=True)})
 
 
 	def json(self, up):

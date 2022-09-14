@@ -16,6 +16,9 @@ from datetime import timedelta
 from datetime import timezone
 import requests
 from app import fapp
+import redis
+import json
+
 
 #bootstrap = Bootstrap(fapp)
 
@@ -27,6 +30,7 @@ fapp.config['JWT_COOKIE_SECURE'] = False
 fapp.config['JWT_COOKIE_CSRF_PROTECT'] = False
 
 jwt = JWTManager(fapp)
+redis_cache = redis.Redis(host='localhost', port=6379, db=0)
 
 # def verify_token():
 # 	def wrapper(fn):
@@ -133,11 +137,12 @@ def check():
 
 @fapp.route('/logout', methods=['POST', 'GET'])
 def logout():
+	form  = frontend_forms.LoginForm()
 	response = UserClient.logout(request)
 	if response:
 		response = make_response(jsonify(response))
 		unset_jwt_cookies(response, domain=None)
-		return response
+		return render_template('login.html', form=form)
 	else:
 		return "Something went wrong..."
 
@@ -163,7 +168,8 @@ def dashboard():
 	form.city.choices.insert(0,('All','All'))
 	buckets = BucketClient.get_notes(request)
 	buckets = buckets.get_json()
-	print(buckets)
+	for bucket in buckets:
+		redis_cache.lpush('cinmoy98',str(bucket))
 
     #categories = list(BucketClient.get)
 	return render_template('bucket.html', form = form, buckets = buckets, categories=categories)
@@ -177,8 +183,9 @@ def dashboard_css():
 	form.country.choices.insert(0,('All','All'))
 	form.city.choices.insert(0,('All','All'))
 	buckets = BucketClient.get_notes(request)
+	print(type(buckets))
 	buckets = buckets.get_json()
-	print(buckets)
+	
 
     #categories = list(BucketClient.get)
 	return render_template('bucket_board.html', form = form, buckets = buckets, categories=categories)
